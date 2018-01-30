@@ -203,9 +203,9 @@ class SteamLogin implements SteamLoginInterface
 	 * @param string $method
 	 * @return \stdClass
 	 */
-	public function userInfo($method) {
+	public function userInfo() {
 		$info = new \stdClass();
-		switch ($method) {
+		switch (Config::get('steam-login.method')) {
 			case 'xml':
 				$data = simplexml_load_string(file_get_contents(sprintf(self::STEAM_PROFILE.'/?xml=1', $this->steamid)),'SimpleXMLElement',LIBXML_NOCDATA);
 				$info->customURL = (string)$data->customURL;
