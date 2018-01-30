@@ -1,0 +1,34 @@
+{
+    "name": "kanalumaddela/laravel-steam-login",
+    "description": "Steam Login package for Laravel 5.5+",
+    "version": "0.0.1",
+    "keywords": ["steam", "auth","laravel"],
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "Samuel Maddela",
+            "email": "github@maddela.org",
+            "homepage": "https://www.maddela.org",
+            "role": "Developer"
+        }
+    ],
+    "require": {
+        "php": "^7.0",
+        "ext-bcmath": "*",
+        "illuminate/http": "5.*",
+        "illuminate/routing": "5.*",
+        "illuminate/support": "5.*"
+    },
+    "autoload": {
+        "psr-4": {
+            "kanalumaddela\\LaravelSteamLogin\\": "src/"
+        }
+    },
+    "extra": {
+        "laravel": {
+            "providers": [
+                "kanalumaddela\\LaravelSteamLogin\\SteamLoginServiceProvider"
+            ]
+        }
+    }
+}
