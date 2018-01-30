@@ -5,7 +5,7 @@ namespace kanalumaddela\LaravelSteamLogin;
 use Illuminate\Http\Request;
 use Illuminate\Support\ServiceProvider;
 
-class SteamServiceProvider extends ServiceProvider
+class SteamLoginServiceProvider extends ServiceProvider
 {
 	/**
 	 * Indicates if loading of the provider is deferred
