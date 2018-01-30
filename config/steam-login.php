@@ -9,6 +9,11 @@ return [
 	'return_route' => env('STEAM_RETURN', '/auth/steam'),
 
 	/**
+	 * Timeout
+	 */
+	'timeout' => env('STEAM_TIMEOUT', 15),
+
+	/**
 	 * Method of retrieving user's info
 	 */
 	'method' => env('STEAM_PROFILE_METHOD', 'xml'),
