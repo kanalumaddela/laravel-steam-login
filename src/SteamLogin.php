@@ -55,20 +55,15 @@ class SteamLogin implements SteamLoginInterface
 	public function __construct(Request $request)
 	{
 		$this->request = $request;
-		$this->loginUrl($request->path());
 	}
 
 	/**
 	 * Generate login URL
 	 *
-	 * @param null $path
 	 * @return string
 	 */
-	public function loginUrl($path = null) {
-		$return = url($path);
-		if (!is_null($return) && !self::isUrl($return)) {
-			throw new RuntimeException('The return URL is not valid');
-		}
+	public function loginUrl() {
+		$return = url($this->request->path());
 
 		$params = [
 			'openid.ns'         => self::OPENID_SPECS,
