@@ -27,12 +27,17 @@ Select `kanalumaddela\LaravelSteamLogin\SteamLoginServiceProvider` as the provid
 return [
 
 	/**
+	 * Login route
+	 */
+	'login_route' => env('STEAM_Login', '/login'),
+
+	/**
 	 * Return route
 	 */
 	'return_route' => env('STEAM_RETURN', '/auth/steam'),
 
 	/**
-	 * Timeout
+	 * Timeout when validating
 	 */
 	'timeout' => env('STEAM_TIMEOUT', 15),
 
@@ -137,7 +142,7 @@ class SteamLoginController extends Controller
 
             Auth::login($user, true); // login and remember user
 
-            return $this->steam->return(); // redurect user back to the page they were on
+            return $this->steam->return(); // redirect user back to the page they were on
         }
 
         return redirect('/'); // now isn't this better than redirecting the user BACK to steam *cough*
