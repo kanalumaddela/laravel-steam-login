@@ -124,16 +124,16 @@ class SteamLogin implements SteamLoginInterface
 
 		try {
 			$params = [
-				'openid.assoc_handle' => $_GET['openid_assoc_handle'],
-				'openid.signed'       => $_GET['openid_signed'],
-				'openid.sig'          => $_GET['openid_sig'],
+				'openid.assoc_handle' => $this->request->input('openid_assoc_handle'),
+				'openid.signed'       => $this->request->input('openid_signed'),
+				'openid.sig'          => $this->request->input('openid_sig'),
 				'openid.ns'           => self::OPENID_SPECS,
 			];
 
-			$signed = explode(',', $_GET['openid_signed']);
+			$signed = explode(',', $this->request->input('openid_signed'));
 
 			foreach ($signed as $item) {
-				$value = $_GET['openid_' . str_replace('.', '_', $item)];
+				$value = $this->request->input('openid_'.str_replace('.', '_', $item));
 				$params['openid.' . $item] = get_magic_quotes_gpc() ? stripslashes($value) : $value;
 			}
 
@@ -155,7 +155,7 @@ class SteamLogin implements SteamLoginInterface
 
 			$result = file_get_contents(self::OPENID_STEAM, false, $context);
 
-			preg_match("#^http://steamcommunity.com/openid/id/([0-9]{17,25})#", $_GET['openid_claimed_id'], $matches);
+			preg_match("#^http://steamcommunity.com/openid/id/([0-9]{17,25})#",  $this->request->input('openid_claimed_id'), $matches);
 			$steamid = is_numeric($matches[1]) ? $matches[1] : 0;
 			$steamid = preg_match("#is_valid\s*:\s*true#i", $result) == 1 ? $steamid : null;
 			$this->player->steamid = $steamid;
