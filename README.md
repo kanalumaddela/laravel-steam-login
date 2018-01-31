@@ -157,10 +157,10 @@ class SteamLoginController extends Controller
 | $player->name            | name                  | kanalumaddela |
 | $player->realName        | real name             | Sam |
 | $player->playerState     | status                | Online/Offline |
-| $player->stateMessage    | status message        | Online/Offline **Last Online/In Game <game>** *Busy/Away/Snooze/Looking to <trade/play>* |
+| $player->stateMessage    | status message        | Online/Offline **Last Online/In Game <game>** <br> *Busy/Away/Snooze/Looking to <trade/play>* |
 | $player->privacyState    | profile privacy       | Private **Friendsonly** |
 | $player->visibilityState | visibility state      | <1/2/3> |
-| $player->avatarSmall     | small avatar          | image from (non-https)**cdn.akamai.steamstatic.com** / (https)*steamcdn-a.akamaihd.net*|
+| $player->avatarSmall     | small avatar          | image from (non-https)**cdn.akamai.steamstatic.com** <br> (https)*steamcdn-a.akamaihd.net*|
 | $player->avatarMedium    | medium avatar         | ^ |
 | $player->avatarLarge     | large avatar          | ^ |
 | $player->joined          | date of joining steam | January 1st, 2018 (format is consistent with XML method) |
