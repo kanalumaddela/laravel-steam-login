@@ -164,3 +164,9 @@ class SteamLoginController extends Controller
 | $player->avatarMedium    | medium avatar         | ^ |
 | $player->avatarLarge     | large avatar          | ^ |
 | $player->joined          | date of joining steam | January 1st, 2018 (format is consistent with XML method) |
+
+## Credits
+
+Thanks to these libs which led me to make this
+- https://github.com/Ehesp/Steam-Login (parts of code used and re-purposed for laravel)
+- https://github.com/invisnik/laravel-steam-auth (getting me to create a laravel steam auth that isn't shit)
