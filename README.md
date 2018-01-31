@@ -1,22 +1,26 @@
 # Steam Auth/Login for Laravel 5.5+
 
+[![GitHub stars](https://img.shields.io/github/stars/kanalumaddela/laravel-steam-login.svg?style=flat-square)](https://github.com/kanalumaddela/laravel-steam-login/stargazers)
+[![GitHub forks](https://img.shields.io/github/forks/kanalumaddela/laravel-steam-login.svg?style=flat-square)](https://github.com/kanalumaddela/laravel-steam-login/network)
+[![GitHub issues](https://img.shields.io/github/issues/kanalumaddela/laravel-steam-login.svg?style=flat-square)](https://github.com/kanalumaddela/laravel-steam-login/issues)
+[![GitHub license](https://img.shields.io/github/license/kanalumaddela/laravel-steam-login.svg?style=flat-square)](https://github.com/kanalumaddela/laravel-steam-login/blob/master/LICENSE)
 
 This isn't gay like the other laravel steam auths.
 
 ## Setup
-
----
 
 ```
 composer require kanalumaddela/laravel-steam-login
 composer install
 ```
 
-#### Config Files
+#### Config
 ```
 php artisan vendor:publish
 ```
-`config/steam-login.php` - set here or in your `.env`
+Select `kanalumaddela\LaravelSteamLogin\SteamLoginServiceProvider` as the provider's files you want to publish
+
+`config/steam-login.php` - set in `.env` or save in the config
 ```php
 <?php
 
@@ -52,8 +56,6 @@ Route::get('logout', 'Auth\LoginController@logout')->name('logout'); // laravel'
 
 Route::get('auth/steam', 'Auth\SteamLoginController@handle')->name('auth.steam');
 ```
-
----
 
 ## Usage
 
@@ -120,14 +122,14 @@ class SteamLoginController extends Controller
             // get user from DB
             $user = User::where('steamid', $player->steamid)->first();
 
-            // if user doesn't exist, create them
+            // create user if they don't exist, update columns if they do, you choose how you want to do this
             if (is_null($user)) {
                 $user = User::create([
                             'name' => $player->name,
                             'steamid' => $player->steamid,
                             'registered_ip' => $request->ip(),
                         ]);
-            } else { // user already exists, update these columns
+            } else {
                 $user->update([
                     'last_activity' => Carbon::now()
                 ]);
@@ -142,3 +144,23 @@ class SteamLoginController extends Controller
     }
 }
 ```
+
+## Docs
+
+
+**Bolded** - XML method only  
+*Italicized* - API method only
+
+| var                      | description           | example |
+| :-------                 | :--------------       | ---: |
+| $player->steamid         | 64 bit steamid        | 76561198152390718 |
+| $player->name            | name                  | kanalumaddela |
+| $player->realName        | real name             | Sam |
+| $player->playerState     | status                | Online/Offline |
+| $player->stateMessage    | status message        | Online/Offline **Last Online/In Game <game>** *Busy/Away/Snooze/Looking to <trade/play>* |
+| $player->privacyState    | profile privacy       | Private **Friendsonly** |
+| $player->visibilityState | visibility state      | <1/2/3> |
+| $player->avatarSmall     | small avatar          | image from (non-https)**cdn.akamai.steamstatic.com** / (https)*steamcdn-a.akamaihd.net*|
+| $player->avatarMedium    | medium avatar         | ^ |
+| $player->avatarLarge     | large avatar          | ^ |
+| $player->joined          | date of joining steam | January 1st, 2018 (format is consistent with XML method) |
