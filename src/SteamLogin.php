@@ -57,12 +57,19 @@ class SteamLogin implements SteamLoginInterface
 	protected $request;
 
 	/**
+	 * @var string
+	 */
+	protected $return_to;
+
+	/**
 	 * SteamLogin constructor.
 	 * @param Request $request
 	 */
 	public function __construct(Request $request)
 	{
 		$this->request = $request;
+		$this->player = new \stdClass();
+		$this->return_to = $this->request->path() != Config::get('steam-login.login_route') ? $this->request->path() : '/';
 	}
 
 	/**
@@ -81,7 +88,7 @@ class SteamLogin implements SteamLoginInterface
 	 * @return string
 	 */
 	public function loginUrl() {
-		$return = url(Config::get('steam-login.return_route').'?return='.$this->request->path());
+		$return = url(Config::get('steam-login.return_route').'?return='.$this->return_to);
 
 		$params = [
 			'openid.ns'         => self::OPENID_SPECS,
@@ -106,9 +113,9 @@ class SteamLogin implements SteamLoginInterface
 	/**
 	 * Redirect back to their original page
 	 */
-	public function return($path)
+	public function return()
 	{
-		return redirect(url($path));
+		return redirect(url($this->return_to));
 	}
 
 	/**
@@ -158,7 +165,6 @@ class SteamLogin implements SteamLoginInterface
 			preg_match("#^http://steamcommunity.com/openid/id/([0-9]{17,25})#",  $this->request->input('openid_claimed_id'), $matches);
 			$steamid = is_numeric($matches[1]) ? $matches[1] : 0;
 			$steamid = preg_match("#is_valid\s*:\s*true#i", $result) == 1 ? $steamid : null;
-			$this->player = new \stdClass();
 			$this->player->steamid = $steamid;
 		} catch (Exception $e) {
 			$steamid = null;
@@ -199,8 +205,7 @@ class SteamLogin implements SteamLoginInterface
 		switch (Config::get('steam-login.method')) {
 			case 'xml':
 				$data = simplexml_load_string(file_get_contents(sprintf(self::STEAM_PROFILE.'/?xml=1', $this->player->steamid)),'SimpleXMLElement',LIBXML_NOCDATA);
-				$this->player->customURL = (string)$data->customURL;
-				$this->player->joined = (string)$data->memberSince;
+				$data->memberSince = (string)$data->memberSince;
 
 				$this->player->name = (string)$data->steamID;
 				$this->player->realName = (string)$data->realname;
@@ -215,6 +220,9 @@ class SteamLogin implements SteamLoginInterface
 				$this->player->joined = !empty($data->joined) ? $data->joined : null;
 				break;
 			case 'api':
+				if (empty(Config::get('steam-auth.api_key'))) {
+					throw new RuntimeException('Steam API key not specified, please add it to your .env');
+				}
 				$data = json_decode(file_get_contents(sprintf(self::STEAM_API, Config::get('steam-login.api_key'), $this->player->steamid)));
 				$data = $data->response->players[0];
 				switch ($data->personastate) {

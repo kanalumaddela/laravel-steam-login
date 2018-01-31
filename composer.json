@@ -1,7 +1,7 @@
 {
     "name": "kanalumaddela/laravel-steam-login",
     "description": "Steam Login package for Laravel 5.5+",
-    "version": "0.0.1",
+    "version": "1.0.0",
     "keywords": ["steam", "auth","laravel"],
     "license": "MIT",
     "authors": [

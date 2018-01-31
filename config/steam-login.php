@@ -3,13 +3,17 @@
 return [
 
 	/**
+	 * Login route
+	 */
+	'login_route' => env('STEAM_Login', '/login'),
+
+	/**
 	 * Return route
-	 *
 	 */
 	'return_route' => env('STEAM_RETURN', '/auth/steam'),
 
 	/**
-	 * Timeout
+	 * Timeout when validating
 	 */
 	'timeout' => env('STEAM_TIMEOUT', 15),
 
