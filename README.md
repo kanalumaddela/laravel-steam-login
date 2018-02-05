@@ -204,7 +204,7 @@ class SteamLoginController extends Controller
 | $player->avatarSmall     | small avatar          | avatar url <br> **cdn.akamai.steamstatic.com** (http) <br> *steamcdn-a.akamaihd.net* (https) |
 | $player->avatarMedium    | medium avatar         | ^ |
 | $player->avatarLarge     | large avatar          | ^ |
-| $player->joined          | date of joining steam | January 1st, 2018 (to be consisten with XML method) |
+| $player->joined          | date of joining steam | January 1st, 2018 (format is consistent XML method) |
 
 ## Credits
 
