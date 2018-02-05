@@ -220,7 +220,7 @@ class SteamLogin implements SteamLoginInterface
 				$this->player->joined = !empty($data->joined) ? $data->joined : null;
 				break;
 			case 'api':
-				if (empty(Config::get('steam-auth.api_key'))) {
+				if (empty(Config::get('steam-login.api_key'))) {
 					throw new RuntimeException('Steam API key not specified, please add it to your .env');
 				}
 				$data = json_decode(self::curl(sprintf(self::STEAM_API, Config::get('steam-login.api_key'), $this->player->steamid)));
