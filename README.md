@@ -129,7 +129,7 @@ class SteamLoginController extends Controller
      *
      * @return \Illuminate\Http\RedirectResponse|\Illuminate\Routing\Redirector
      */
-    public function handle(Request $request)
+    public function handle()
     {
         if ($this->steam->validate()) {
 
