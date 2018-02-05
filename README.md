@@ -29,7 +29,7 @@ return [
 	/**
 	 * Login route
 	 */
-	'login_route' => env('STEAM_Login', '/login'),
+	'login_route' => env('STEAM_LOGIN', '/login'),
 
 	/**
 	 * Return route
