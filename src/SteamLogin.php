@@ -204,7 +204,7 @@ class SteamLogin implements SteamLoginInterface
 	public function userInfo() {
 		switch (Config::get('steam-login.method')) {
 			case 'xml':
-				$data = simplexml_load_string(file_get_contents(sprintf(self::STEAM_PROFILE.'/?xml=1', $this->player->steamid)),'SimpleXMLElement',LIBXML_NOCDATA);
+				$data = simplexml_load_string(self::curl(sprintf(self::STEAM_PROFILE.'/?xml=1', $this->player->steamid)),'SimpleXMLElement',LIBXML_NOCDATA);
 				$data->memberSince = (string)$data->memberSince;
 
 				$this->player->name = (string)$data->steamID;
@@ -223,7 +223,7 @@ class SteamLogin implements SteamLoginInterface
 				if (empty(Config::get('steam-auth.api_key'))) {
 					throw new RuntimeException('Steam API key not specified, please add it to your .env');
 				}
-				$data = json_decode(file_get_contents(sprintf(self::STEAM_API, Config::get('steam-login.api_key'), $this->player->steamid)));
+				$data = json_decode(self::curl(sprintf(self::STEAM_API, Config::get('steam-login.api_key'), $this->player->steamid)));
 				$data = $data->response->players[0];
 				switch ($data->personastate) {
 					case 0:
@@ -263,6 +263,21 @@ class SteamLogin implements SteamLoginInterface
 			default:
 				break;
 		}
+	}
+
+	/**
+	 * Simple cURL GET
+	 *
+	 * @return string
+	 */
+	public static function curl($url) {
+		$curl = curl_init();
+		curl_setopt($curl, CURLOPT_SSL_VERIFYPEER, false);
+		curl_setopt($curl, CURLOPT_RETURNTRANSFER, true);
+		curl_setopt($curl, CURLOPT_URL, $url);
+		$data = curl_exec($curl);
+		curl_close($curl);
+		return $data;
 	}
 
 	/**
