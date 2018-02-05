@@ -141,16 +141,13 @@ class SteamLoginController extends Controller
 
             // login and remember user
             Auth::login($user, true);
-
-            // redirect user back to the page they were on
-            return $this->steam->return();
         }
 
         /*
             now isn't this better than redirecting the user BACK to steam? *cough*
             you can choose to redirect to steam if you want i guess... return $this->login()
         */
-        return redirect('/');
+        return $this->steam->return();
     }
 
     /**
