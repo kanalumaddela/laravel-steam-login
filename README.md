@@ -60,7 +60,7 @@ return [
 
 `routes/web.php`
 ```php
-Route::get('login', 'Auth\SteamLoginController@login')->name('login');
+Route::get('login', 'Auth\SteamLoginController@login')->name('login.steam');
 Route::get('logout', 'Auth\LoginController@logout')->name('logout'); // laravel's default logout
 
 Route::get('auth/steam', 'Auth\SteamLoginController@handle')->name('auth.steam');
