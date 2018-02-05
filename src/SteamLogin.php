@@ -294,7 +294,7 @@ class SteamLogin implements SteamLoginInterface
      *
      * @return string
      */
-    public static function loginButton($type = 'small')
+    public static function button($type = 'small')
     {
         return 'https://steamcommunity-a.akamaihd.net/public/images/signinthroughsteam/sits_0'.($type == 'small' ? 1 : 2).'.png';
     }

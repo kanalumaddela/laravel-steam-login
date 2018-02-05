@@ -181,7 +181,11 @@ class SteamLoginController extends Controller
 }
 ```
 
-## Player Info
+## Docs
+
+`SteamLogin::button($type)` - returns the image url for the sign in through steam button  
+![](https://steamcommunity-a.akamaihd.net/public/images/signinthroughsteam/sits_01.png) - `small`  
+![](https://steamcommunity-a.akamaihd.net/public/images/signinthroughsteam/sits_02.png) - `large`
 
 **Bolded** - XML method only  
 *Italicized* - API method only
