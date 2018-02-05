@@ -148,19 +148,20 @@ class SteamLogin implements SteamLoginInterface
 
 			$data =  http_build_query($params);
 
-			$context = stream_context_create(array(
-				'http' => array(
-					'method' => 'POST',
-					'header' =>
-						"Accept-language: en\r\n".
-						"Content-type: application/x-www-form-urlencoded\r\n" .
-						"Content-Length: " . strlen($data) . "\r\n",
-					'content' => $data,
-					'timeout' => Config::get('steam-login.timeout'),
-				),
+			$curl = curl_init();
+			curl_setopt($curl, CURLOPT_POSTFIELDS, $data);
+			curl_setopt($curl, CURLOPT_POST, 1);
+			curl_setopt($curl, CURLOPT_SSL_VERIFYPEER, false);
+			curl_setopt($curl, CURLOPT_RETURNTRANSFER, true);
+			curl_setopt($curl, CURLOPT_HTTPHEADER, array(
+				"Accept-language: en",
+				"Content-type: application/x-www-form-urlencoded",
+				"Content-Length: " . strlen($data),
 			));
 
-			$result = file_get_contents(self::OPENID_STEAM, false, $context);
+			curl_setopt($curl, CURLOPT_URL, self::OPENID_STEAM);
+			$result = curl_exec($curl);
+			curl_close($curl);
 
 			preg_match("#^http://steamcommunity.com/openid/id/([0-9]{17,25})#",  $this->request->input('openid_claimed_id'), $matches);
 			$steamid = is_numeric($matches[1]) ? $matches[1] : 0;

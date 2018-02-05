@@ -9,9 +9,13 @@ This isn't gay like the other laravel steam auths.
 
 ## Setup
 
+in your composer.json add
+```
+"kanalumaddela/laravel-steam-login": "~1.0"
+```
+then `composer install` OR
 ```
 composer require kanalumaddela/laravel-steam-login
-composer install
 ```
 
 #### Config
@@ -91,15 +95,23 @@ class SteamLoginController extends Controller
      */
     protected $steam;
 
+    /**
+     * Illuminate\Http\Request
+     *
+     * @var Request $request
+     */
+    protected $request;
+
 
     /**
      * SteamLoginControler constructor
      *
      * @param SteamLogin $steam
      */
-    public function __construct(SteamLogin $steam)
+    public function __construct(SteamLogin $steam, Request $request)
     {
         $this->steam = $steam;
+        $this->request = $request;
     }
 
     /**
@@ -125,27 +137,43 @@ class SteamLoginController extends Controller
             $player = $this->steam->player;
 
             // get user from DB
-            $user = User::where('steamid', $player->steamid)->first();
+            $user = $this->findOrNewUser($player);
 
-            // create user if they don't exist, update columns if they do, you choose how you want to do this
-            if (is_null($user)) {
-                $user = User::create([
-                            'name' => $player->name,
-                            'steamid' => $player->steamid,
-                            'registered_ip' => $request->ip(),
-                        ]);
-            } else {
-                $user->update([
-                    'last_activity' => Carbon::now()
-                ]);
-            }
+            // login and remember user
+            Auth::login($user, true);
 
-            Auth::login($user, true); // login and remember user
-
-            return $this->steam->return(); // redirect user back to the page they were on
+            // redirect user back to the page they were on
+            return $this->steam->return();
         }
 
-        return redirect('/'); // now isn't this better than redirecting the user BACK to steam *cough*
+        /*
+            now isn't this better than redirecting the user BACK to steam? *cough*
+            you can choose to redirect to steam if you want i guess... return $this->login()
+        */
+        return redirect('/');
+    }
+
+    protected function findOrNewUser($player) {
+
+        // find user in DB
+        $user = User::where('steamid', $player->steamid)->first();
+
+        // if user exists, update something, your choice to do something like this
+        if (!is_null($user)) {
+            $user->update([
+                'avatar' => $player->avatarLarge
+            ]);
+        } else {
+            // create user and insert into DB
+            $user = User::create([
+                        'name' => $player->name,
+                        'steamid' => $player->steamid,
+                        'avatar' => $player->avatarLarge,
+                        'registered_ip' => $this->request->ip(),
+                    ]);
+        }
+
+        return $user;
     }
 }
 ```
@@ -158,13 +186,15 @@ class SteamLoginController extends Controller
 | var                      | description           | example |
 | :-------                 | :--------------       | ---: |
 | $player->steamid         | 64 bit steamid        | 76561198152390718 |
+| $player->steamid2         | 32 bit steamid        | STEAM_0:0:96062495 |
+| $player->steamid3         | SteamID3        | [U:1:192124990] |
 | $player->name            | name                  | kanalumaddela |
 | $player->realName        | real name             | Sam |
 | $player->playerState     | status                | Online/Offline |
 | $player->stateMessage    | status message        | Online/Offline <br> **Last Online/In Game <game>** <br> *Busy/Away/Snooze/Looking to <trade/play>* |
-| $player->privacyState    | profile privacy       | Private **Friendsonly** |
+| $player->privacyState    | profile privacy       | Private <br> **Friendsonly** |
 | $player->visibilityState | visibility state      | <1/2/3> |
-| $player->avatarSmall     | small avatar          | avatar url <br> **cdn.akamai.steamstatic.com** (http) <br> *steamcdn-a.akamaihd.net* (https |
+| $player->avatarSmall     | small avatar          | avatar url <br> **cdn.akamai.steamstatic.com** (http) <br> *steamcdn-a.akamaihd.net* (https) |
 | $player->avatarMedium    | medium avatar         | ^ |
 | $player->avatarLarge     | large avatar          | ^ |
 | $player->joined          | date of joining steam | January 1st, 2018 (to be consisten with XML method) |
@@ -173,4 +203,4 @@ class SteamLoginController extends Controller
 
 Thanks to these libs which led me to make this
 - https://github.com/Ehesp/Steam-Login (parts of code used and re-purposed for laravel)
-- https://github.com/invisnik/laravel-steam-auth (getting me to create a laravel steam auth that isn't shit)
+- https://github.com/invisnik/laravel-steam-auth (getting me to create a laravel steam auth that isn't shit, your code *totally* doesn't look like Ehesp's you cuck, for others reading, seriously compare the code, invisnik can't even give proper credit)
