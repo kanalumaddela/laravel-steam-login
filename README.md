@@ -30,30 +30,30 @@ Select `kanalumaddela\LaravelSteamLogin\SteamLoginServiceProvider` as the provid
 
 return [
 
-	/**
-	 * Login route
-	 */
-	'login_route' => env('STEAM_LOGIN', '/login'),
+    /**
+     * Login route
+     */
+    'login_route' => env('STEAM_LOGIN', '/login'),
 
-	/**
-	 * Return route
-	 */
-	'return_route' => env('STEAM_RETURN', '/auth/steam'),
+    /**
+     * Return route
+     */
+    'return_route' => env('STEAM_RETURN', '/auth/steam'),
 
-	/**
-	 * Timeout when validating
-	 */
-	'timeout' => env('STEAM_TIMEOUT', 15),
+    /**
+     * Timeout when validating
+     */
+    'timeout' => env('STEAM_TIMEOUT', 15),
 
-	/**
-	 * Method of retrieving user's info
-	 */
-	'method' => env('STEAM_PROFILE_METHOD', 'xml'),
+    /**
+     * Method of retrieving user's info
+     */
+    'method' => env('STEAM_PROFILE_METHOD', 'xml'),
 
-	/**
-	 * API key (http://steamcommunity.com/dev/apikey)
-	 */
-	'api_key' => env('STEAM_API_KEY', ''),
+    /**
+     * API key (http://steamcommunity.com/dev/apikey)
+     */
+    'api_key' => env('STEAM_API_KEY', ''),
 
 ];
 ```
@@ -153,6 +153,12 @@ class SteamLoginController extends Controller
         return redirect('/');
     }
 
+    /**
+     * Find existing user or insert one
+     *
+     * @param $player
+     * @return mixed
+     */
     protected function findOrNewUser($player) {
 
         // find user in DB
@@ -184,10 +190,10 @@ class SteamLoginController extends Controller
 *Italicized* - API method only
 
 | var                      | description           | example |
-| :-------                 | :--------------       | ---: |
+| :---                     | :---                  | ---: |
 | $player->steamid         | 64 bit steamid        | 76561198152390718 |
-| $player->steamid2         | 32 bit steamid        | STEAM_0:0:96062495 |
-| $player->steamid3         | SteamID3        | [U:1:192124990] |
+| $player->steamid2        | 32 bit steamid        | STEAM_0:0:96062495 |
+| $player->steamid3        | SteamID3              | [U:1:192124990] |
 | $player->name            | name                  | kanalumaddela |
 | $player->realName        | real name             | Sam |
 | $player->playerState     | status                | Online/Offline |
@@ -203,4 +209,4 @@ class SteamLoginController extends Controller
 
 Thanks to these libs which led me to make this
 - https://github.com/Ehesp/Steam-Login (parts of code used and re-purposed for laravel)
-- https://github.com/invisnik/laravel-steam-auth (getting me to create a laravel steam auth that isn't shit, your code *totally* doesn't look like Ehesp's you cuck, for others reading, seriously compare the code, invisnik can't even give proper credit)
+- https://github.com/invisnik/laravel-steam-auth (getting me to create a laravel steam auth that isn't shit, your code *totally* doesn't look like Ehesp's you cuck, for others reading this compare the code, invisnik can't even give proper credit)
