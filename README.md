@@ -13,10 +13,7 @@ in your composer.json add
 ```
 "kanalumaddela/laravel-steam-login": "~1.0"
 ```
-then `composer install` OR
-```
-composer require kanalumaddela/laravel-steam-login
-```
+then `composer install`
 
 #### Config
 ```
@@ -24,7 +21,7 @@ php artisan vendor:publish
 ```
 Select `kanalumaddela\LaravelSteamLogin\SteamLoginServiceProvider` as the provider's files you want to publish
 
-`config/steam-login.php` - set in `.env` or save in the config
+`config/steam-login.php` - use`.env` or save in the config
 ```php
 <?php
 
@@ -60,9 +57,11 @@ return [
 
 `routes/web.php`
 ```php
+// login/logout
 Route::get('login', 'Auth\SteamLoginController@login')->name('login.steam');
 Route::get('logout', 'Auth\LoginController@logout')->name('logout'); // laravel's default logout
 
+// auth handlers
 Route::get('auth/steam', 'Auth\SteamLoginController@handle')->name('auth.steam');
 ```
 
@@ -146,6 +145,7 @@ class SteamLoginController extends Controller
         /*
             now isn't this better than redirecting the user BACK to steam? *cough*
             you can choose to redirect to steam if you want i guess... return $this->login()
+            better to session flash and redirect to a page so the user knows what happened if auth fails
         */
         return $this->steam->return();
     }
@@ -184,8 +184,10 @@ class SteamLoginController extends Controller
 ## Docs
 
 `SteamLogin::button($type)` - returns the image url for the sign in through steam button  
-![](https://steamcommunity-a.akamaihd.net/public/images/signinthroughsteam/sits_01.png) - `small`  
-![](https://steamcommunity-a.akamaihd.net/public/images/signinthroughsteam/sits_02.png) - `large`
+
+`small` - ![](https://steamcommunity-a.akamaihd.net/public/images/signinthroughsteam/sits_01.png)
+ 
+`large` - ![](https://steamcommunity-a.akamaihd.net/public/images/signinthroughsteam/sits_02.png)
 
 **Bolded** - XML method only  
 *Italicized* - API method only

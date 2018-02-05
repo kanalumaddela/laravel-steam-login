@@ -254,7 +254,7 @@ class SteamLogin implements SteamLoginInterface
                         break;
                 }
                 $this->player->name = $data->personaname;
-                $this->player->realName = $data->realname ?? null;
+                $this->player->realName = isset($data->realname) ? $data->realname : null;
                 $this->player->playerState = $data->personastate != 0 ? 'Online' : 'Offline';
                 $this->player->stateMessage = $data->personastate;
                 $this->player->privacyState = ($data->communityvisibilitystate == 1 || $data->communityvisibilitystate == 2) ? 'Private' : 'Public';
