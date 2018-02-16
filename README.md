@@ -9,11 +9,14 @@ This isn't gay like the other laravel steam auths.
 
 ## Setup
 
-in your composer.json add
+```
+composer require "kanalumaddela/laravel-steam-login"
+```
+or in your composer.json add
 ```
 "kanalumaddela/laravel-steam-login": "~1.0"
 ```
-then `composer install`
+then `composer update`
 
 #### Config
 ```
@@ -103,9 +106,10 @@ class SteamLoginController extends Controller
 
 
     /**
-     * SteamLoginControler constructor
+     * SteamLoginController constructor
      *
      * @param SteamLogin $steam
+     * @param  Request $request 
      */
     public function __construct(SteamLogin $steam, Request $request)
     {

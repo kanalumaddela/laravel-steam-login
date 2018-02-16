@@ -70,7 +70,7 @@ class SteamLogin implements SteamLoginInterface
     {
         $this->request = $request;
         $this->player = new \stdClass();
-        $this->return_to = $this->request->path() != Config::get('steam-login.login_route') ? $this->request->path() : '/';
+        $this->return_to = url()->previous() != url()->current() ? url()->previous() : '/';
     }
 
     /**
@@ -117,7 +117,7 @@ class SteamLogin implements SteamLoginInterface
      */
     public function return()
     {
-        return redirect(url($this->return_to));
+        return redirect($this->request->input('return_to') != Config::get('steam-login.return_route') ? $this->request->input('return_to') : '/');
     }
 
     /**
