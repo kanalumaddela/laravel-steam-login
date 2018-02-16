@@ -117,7 +117,7 @@ class SteamLogin implements SteamLoginInterface
      */
     public function return()
     {
-        return redirect($this->request->input('return') != Config::get('steam-login.return_route') ? $this->request->input('return') : url('/'));
+        return redirect($this->request->has('return') && $this->request->input('return') != Config::get('steam-login.return_route') ? $this->request->input('return') : url('/'));
     }
 
     /**
