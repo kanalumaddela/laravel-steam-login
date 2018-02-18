@@ -209,8 +209,7 @@ class SteamLogin implements SteamLoginInterface
     {
         switch (Config::get('steam-login.method')) {
             case 'xml':
-                $data = simplexml_load_string(self::curl(sprintf(self::STEAM_PROFILE.'/?xml=1', $this->player->steamid)), 'SimpleXMLElement', LIBXML_NOCDATA);
-                $data->memberSince = (string) $data->memberSince;
+                $data = simplexml_load_string(self::curl(sprintf(str_replace('https://', 'http://', self::STEAM_PROFILE).'/?xml=1', $this->player->steamid)), 'SimpleXMLElement', LIBXML_NOCDATA);
 
                 $this->player->name = (string) $data->steamID;
                 $this->player->realName = (string) $data->realname;
