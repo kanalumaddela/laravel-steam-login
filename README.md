@@ -27,7 +27,9 @@ composer require "kanalumaddela/laravel-steam-login"
  php artisan vendor:publish --provider kanalumaddela\LaravelSteamLogin\SteamLoginServiceProvider
 ```
 
-This is just the config, but it is recommended to use your `.env` instead to set these values
+1. Set your config values in your`.env`, here's what shows in `config/steam-login.php`
+   - the xml method allows you to get a player's info without using the steam api, however it is **highly recommended** to use the api method in production
+
 ```php
 <?php
 
@@ -60,7 +62,7 @@ return [
 
 ];
 ```
-Add the routes in `routes/web.php`
+2. Add the routes in `routes/web.php`
 ```php
 // login/logout
 Route::get('login/steam', 'Auth\SteamLoginController@login')->name('login.steam'); // incase you want to have other login methods
@@ -70,7 +72,7 @@ Route::get('auth/steam', 'Auth\SteamLoginController@handle')->name('auth.steam')
 ```
 
 
-Share the login url and steam buttons (if you choose) across blade templates in `app/Providers/AppServiceProvider.php`
+3. Share the login url and steam buttons (if you choose) across blade templates in `app/Providers/AppServiceProvider.php`
 ```php
 <?php
 
@@ -107,7 +109,7 @@ class AppServiceProvider extends ServiceProvider
 }
 ```
 
-## Usage
+4. Create the controller
 
 ```
  php artisan make:controller Auth/SteamLoginController
@@ -173,7 +175,7 @@ class SteamLoginController extends Controller
      */
     public function handle()
     {
-    	// check if validation succeeded, returns true/false
+        // check if validation succeeded, returns true/false
         if ($this->steam->validate()) {
 
             // get player's info
@@ -207,7 +209,7 @@ class SteamLoginController extends Controller
 
         // check if user exists in DB
         if (!is_null($user)) {
-        	// update and save user
+            // update and save user
             $user->update([
                 'avatar' => $player->avatarLarge
             ]);
@@ -261,7 +263,7 @@ Can be used in blade templates like
 | $player->avatarSmall     | small avatar          | avatar url <br> **cdn.akamai.steamstatic.com** (http) <br> *steamcdn-a.akamaihd.net* (https) |
 | $player->avatarMedium    | medium avatar         | ^ |
 | $player->avatarLarge     | large avatar          | ^ |
-| $player->joined          | date of joining steam | January 1st, 2018 (format is consistent XML method) |
+| $player->joined          | date of joining steam | January 1st, 2018 (format is consistent with XML method) |
 
 ## Credits
 
