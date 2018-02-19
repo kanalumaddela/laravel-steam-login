@@ -1,30 +1,33 @@
 # Steam Auth/Login for Laravel 5.5+
 
+[![Packagist](https://img.shields.io/packagist/dt/kanalumaddela/laravel-steam-login.svg?style=flat-square)](https://packagist.org/packages/kanalumaddela/laravel-steam-login)
+[![Packagist version](https://img.shields.io/packagist/v/kanalumaddela/laravel-steam-login.svg?style=flat-square)](https://packagist.org/packages/kanalumaddela/laravel-steam-login)
+[![PHP from Packagist](https://img.shields.io/packagist/php-v/kanalumaddela/laravel-steam-login.svg?style=flat-square)]()
 [![GitHub stars](https://img.shields.io/github/stars/kanalumaddela/laravel-steam-login.svg?style=flat-square)](https://github.com/kanalumaddela/laravel-steam-login/stargazers)
 [![GitHub forks](https://img.shields.io/github/forks/kanalumaddela/laravel-steam-login.svg?style=flat-square)](https://github.com/kanalumaddela/laravel-steam-login/network)
 [![GitHub issues](https://img.shields.io/github/issues/kanalumaddela/laravel-steam-login.svg?style=flat-square)](https://github.com/kanalumaddela/laravel-steam-login/issues)
 [![GitHub license](https://img.shields.io/github/license/kanalumaddela/laravel-steam-login.svg?style=flat-square)](https://github.com/kanalumaddela/laravel-steam-login/blob/master/LICENSE)
 
-This isn't gay like the other laravel steam auths.
+This isn't gay like the other laravel steam auths. The example assumes you are using Laravel's default `User` model along with the migration for its table. If you want otherwise, read Laravel docs.
+
+## Requirements
+
+- PHP 7 +
+- User tables setup for steam auth (e.g. `steamid` column or a separate table referencing the `users` table)
+- A basic understanding of Laravel (& PHP obvs)
 
 ## Setup
 
 ```
 composer require "kanalumaddela/laravel-steam-login"
 ```
-or in your composer.json add
-```
-"kanalumaddela/laravel-steam-login": "~1.0"
-```
-then `composer update`
 
 #### Config
 ```
-php artisan vendor:publish
+ php artisan vendor:publish --provider kanalumaddela\LaravelSteamLogin\SteamLoginServiceProvider
 ```
-Select `kanalumaddela\LaravelSteamLogin\SteamLoginServiceProvider` as the provider's files you want to publish
 
-`config/steam-login.php` - use`.env` or save in the config
+This is just the config, but it is recommended to use your `.env` instead to set these values
 ```php
 <?php
 
@@ -57,15 +60,51 @@ return [
 
 ];
 ```
-
-`routes/web.php`
+Add the routes in `routes/web.php`
 ```php
 // login/logout
-Route::get('login', 'Auth\SteamLoginController@login')->name('login.steam');
-Route::get('logout', 'Auth\LoginController@logout')->name('logout'); // laravel's default logout
+Route::get('login/steam', 'Auth\SteamLoginController@login')->name('login.steam'); // incase you want to have other login methods
+Route::get('logout', 'Auth\LoginController@logout')->name('logout'); // laravel's default logout, or use the post method if you know prefer
 
-// auth handlers
 Route::get('auth/steam', 'Auth\SteamLoginController@handle')->name('auth.steam');
+```
+
+
+Share the login url and steam buttons (if you choose) across blade templates in `app/Providers/AppServiceProvider.php`
+```php
+<?php
+
+namespace App\Providers;
+
+use Illuminate\Support\ServiceProvider;
+
+use Illuminate\Support\Facades\View;                                       // <-- add this
+use kanalumaddela\LaravelSteamLogin\SteamLogin;                            // <-- add this
+
+class AppServiceProvider extends ServiceProvider
+{
+    /**
+     * Bootstrap any application services.
+     *
+     * @return void
+     */
+    public function boot(SteamLogin $steam)                                // boot() --> boot(SteamLogin $steam)
+    {
+        View::share('steam_login', $steam->loginUrl());
+        View::share('steam_button_small', SteamLogin::button('small'));
+        View::share('steam_button_large', SteamLogin::button('large'));
+    }
+
+    /**
+     * Register any application services.
+     *
+     * @return void
+     */
+    public function register()
+    {
+        //
+    }
+}
 ```
 
 ## Usage
@@ -73,7 +112,7 @@ Route::get('auth/steam', 'Auth\SteamLoginController@handle')->name('auth.steam')
 ```
  php artisan make:controller Auth/SteamLoginController
 ```
-Open it up and paste this
+Paste this
 ```php
 <?php
 
@@ -108,13 +147,13 @@ class SteamLoginController extends Controller
     /**
      * SteamLoginController constructor
      *
+     * @param Request $request 
      * @param SteamLogin $steam
-     * @param  Request $request 
      */
-    public function __construct(SteamLogin $steam, Request $request)
+    public function __construct(Request $request, SteamLogin $steam)
     {
-        $this->steam = $steam;
         $this->request = $request;
+        $this->steam = $steam;
     }
 
     /**
@@ -134,12 +173,13 @@ class SteamLoginController extends Controller
      */
     public function handle()
     {
+    	// check if validation succeeded, returns true/false
         if ($this->steam->validate()) {
 
             // get player's info
             $player = $this->steam->player;
 
-            // get user from DB
+            // get user from DB or create and return them
             $user = $this->findOrNewUser($player);
 
             // login and remember user
@@ -149,7 +189,7 @@ class SteamLoginController extends Controller
         /*
             now isn't this better than redirecting the user BACK to steam? *cough*
             you can choose to redirect to steam if you want i guess... return $this->login()
-            better to session flash and redirect to a page so the user knows what happened if auth fails
+            better to session flash ->with() and redirect to a page so the user knows what happened if auth fails
         */
         return $this->steam->return();
     }
@@ -165,8 +205,9 @@ class SteamLoginController extends Controller
         // find user in DB
         $user = User::where('steamid', $player->steamid)->first();
 
-        // if user exists, update something, your choice to do something like this
+        // check if user exists in DB
         if (!is_null($user)) {
+        	// update and save user
             $user->update([
                 'avatar' => $player->avatarLarge
             ]);
@@ -187,11 +228,21 @@ class SteamLoginController extends Controller
 
 ## Docs
 
-`SteamLogin::button($type)` - returns the image url for the sign in through steam button  
+#### Sign in through Steam buttons  
+Can be used in blade templates like  
+```html
+<a href="{{ steam_login }}"><img src="{{ steam_button_small }}" /></a>
+```  
+
+`SteamLogin::button($type)` - returns the image url for the sign in through steam button
 
 `small` - ![](https://steamcommunity-a.akamaihd.net/public/images/signinthroughsteam/sits_01.png)
  
 `large` - ![](https://steamcommunity-a.akamaihd.net/public/images/signinthroughsteam/sits_02.png)
+
+&nbsp;
+
+#### Player Info
 
 **Bolded** - XML method only  
 *Italicized* - API method only
@@ -215,5 +266,5 @@ class SteamLoginController extends Controller
 ## Credits
 
 Thanks to these libs which led me to make this
-- https://github.com/Ehesp/Steam-Login (parts of code used and re-purposed for laravel)
-- https://github.com/invisnik/laravel-steam-auth (getting me to create a laravel steam auth that isn't shit, your code *totally* doesn't look like Ehesp's you cuck, for others reading this compare the code, invisnik can't even give proper credit)
+- https://github.com/Ehesp/Steam-Login (Parts of code used and re-purposed for laravel)
+- https://github.com/invisnik/laravel-steam-auth (Getting me to create a laravel steam auth that isn't shit, your code *totally* doesn't look like Ehesp's you cuck. For others reading this compare the code, invisnik can't even give proper credit)
