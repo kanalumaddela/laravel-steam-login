@@ -233,7 +233,7 @@ class SteamLoginController extends Controller
 #### Sign in through Steam buttons  
 Can be used in blade templates like  
 ```html
-<a href="{{ steam_login }}"><img src="{{ steam_button_small }}" /></a>
+<a href="{{ $steam_login }}"><img src="{{ $steam_button_small }}" /></a>
 ```  
 
 `SteamLogin::button($type)` - returns the image url for the sign in through steam button
