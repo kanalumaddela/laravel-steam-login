@@ -165,7 +165,7 @@ class SteamLogin implements SteamLoginInterface
             $result = curl_exec($curl);
             curl_close($curl);
 
-            preg_match('#^http://steamcommunity.com/openid/id/([0-9]{17,25})#', $this->request->input('openid_claimed_id'), $matches);
+            preg_match('#^https://steamcommunity.com/openid/id/([0-9]{17,25})#', $this->request->input('openid_claimed_id'), $matches);
             $steamid = is_numeric($matches[1]) ? $matches[1] : 0;
             $steamid = preg_match("#is_valid\s*:\s*true#i", $result) == 1 ? $steamid : null;
             $this->player->steamid = $steamid;
