@@ -2,25 +2,23 @@
 
 namespace kanalumaddela\LaravelSteamLogin\Http\Controllers\Auth;
 
-use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
-
 use App\User;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
-
 use kanalumaddela\LaravelSteamLogin\SteamLogin;
 
-class SteamLoginController extends Controller {
-
+class SteamLoginController extends Controller
+{
     /**
-     * Illuminate\Http\Request
+     * Illuminate\Http\Request.
      *
      * @var Request
      */
     protected $request;
 
     /**
-     * SteamLogin instance
+     * SteamLogin instance.
      *
      * @var SteamLogin
      */
@@ -60,13 +58,10 @@ class SteamLoginController extends Controller {
 
         if (is_null($user)) {
             $user = User::create([
-                'name' => $player->name,
-                'steamid' => $player->steamid,
-                'registered' => Carbon::now()
+                'name'       => $player->name,
+                'steamid'    => $player->steamid,
+                'registered' => Carbon::now(),
             ]);
         }
-
     }
-
-
 }
