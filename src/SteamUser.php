@@ -2,6 +2,7 @@
 
 namespace kanalumaddela\LaravelSteamLogin;
 
+use Illuminate\Support\Facades\Config;
 use RuntimeException;
 
 class SteamUser
