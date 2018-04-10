@@ -1,30 +1,35 @@
 <?php
 
 return [
-
-    /*
-     * Login route
+    /**
+     * API key (http://steamcommunity.com/dev/apikey)
      */
-    'login_route' => env('STEAM_LOGIN', '/login'),
-
-    /*
-     * Return route
-     */
-    'return_route' => env('STEAM_RETURN', '/auth/steam'),
-
-    /*
-     * Timeout when validating
-     */
-    'timeout' => env('STEAM_TIMEOUT', 15),
+    'api_key' => env('STEAM_API_KEY', null),
 
     /*
      * Method of retrieving user's info
      */
     'method' => env('STEAM_PROFILE_METHOD', 'xml'),
 
-    /*
-     * API key (http://steamcommunity.com/dev/apikey)
+    /**
+     * Timeout in seconds
      */
-    'api_key' => env('STEAM_API_KEY', ''),
+    'timeout' => env('STEAM_TIMEOUT', 5),
+
+    /**
+     * Use the steam universe when converting to Steam:ID
+     * May cause issues depending on your use case, e.g. garrymod uses STEAM_0 while newer source games use STEAM_1
+     */
+    'universe' => env('STEAM_UNIVERSE', false),
+
+    /**
+     * Routes used, named routes are also accepted
+     */
+    'routes' => [
+        'callback' => env('STEAM_CALLBACK_ROUTE', '/auth/steam'),
+        'login' => env('STEAM_LOGIN_ROUTE', '/login/steam')
+    ],
+
+
 
 ];
