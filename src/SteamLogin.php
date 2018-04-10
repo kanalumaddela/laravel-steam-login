@@ -25,21 +25,21 @@ class SteamLogin implements SteamLoginInterface
     const OPENID_SPECS = 'http://specs.openid.net/auth/2.0';
 
     /**
-     * SteamUser instance of player details
+     * SteamUser instance of player details.
      *
      * @var SteamUser
      */
     public $player;
 
     /**
-     * Login URL
+     * Login URL.
      *
      * @var string
      */
     private $loginURL;
 
     /**
-     * Steam Auth related routes
+     * Steam Auth related routes.
      *
      * @var array
      */
@@ -50,14 +50,12 @@ class SteamLogin implements SteamLoginInterface
      */
     protected $original_page;
 
-
     /**
-     * Laravel Request instance
+     * Laravel Request instance.
      *
      * @var Request
      */
     protected $request;
-
 
     /**
      * SteamLogin constructor.
@@ -71,12 +69,13 @@ class SteamLogin implements SteamLoginInterface
 
         $this->routes = [
             'callback' => Route::has(Config::get('steam-login.routes.callback')) ? route(Config::get('steam-login.routes.callback')) : url(Config::get('steam-login.routes.callback')),
-            'login' => Route::has(Config::get('steam-login.routes.login')) ? route(Config::get('steam-login.routes.login')) : url(Config::get('steam-login.routes.login'))
+            'login'    => Route::has(Config::get('steam-login.routes.login')) ? route(Config::get('steam-login.routes.login')) : url(Config::get('steam-login.routes.login')),
         ];
 
         if (Config::get('steam-login.method') == 'api') {
-            if (empty(Config::get('steam-login.api_key')))
+            if (empty(Config::get('steam-login.api_key'))) {
                 throw new RuntimeException('Steam API not defined, please set it in your .env or in config/steam-login.php');
+            }
         }
 
         //
@@ -87,7 +86,7 @@ class SteamLogin implements SteamLoginInterface
     }
 
     /**
-     * Return login URL
+     * Return login URL.
      *
      * @return string
      */
@@ -97,8 +96,10 @@ class SteamLogin implements SteamLoginInterface
     }
 
     /**
-     * Generate openid login URL with specified return
+     * Generate openid login URL with specified return.
+     *
      * @param $return
+     *
      * @return string
      */
     public function loginURL($return): string
@@ -107,7 +108,7 @@ class SteamLogin implements SteamLoginInterface
     }
 
     /**
-     * Return player object and optionally choose to retrieve profile info
+     * Return player object and optionally choose to retrieve profile info.
      *
      * @param bool $info
      *
@@ -115,7 +116,7 @@ class SteamLogin implements SteamLoginInterface
      */
     public function getPlayer($info = false): SteamUser
     {
-        return ($info ? $this->player->getPlayerInfo() : $this->player);
+        return $info ? $this->player->getPlayerInfo() : $this->player;
     }
 
     /**
@@ -137,7 +138,7 @@ class SteamLogin implements SteamLoginInterface
     }
 
     /**
-     * Returns Steam Login button with link
+     * Returns Steam Login button with link.
      *
      * @param string $type
      *
@@ -149,23 +150,26 @@ class SteamLogin implements SteamLoginInterface
     }
 
     /**
-     * Check if login is valid
+     * Check if login is valid.
+     *
+     * @throws Exception
      *
      * @return bool
-     * @throws Exception
      */
     public function valid(): bool
     {
-        if (!$this->validRequest())
+        if (!$this->validRequest()) {
             return false;
+        }
 
         $steamid = $this->validate();
 
-        if (is_null($steamid) && env('APP_DEBUG'))
+        if (is_null($steamid) && env('APP_DEBUG')) {
             throw new RuntimeException('Steam Auth failed or timed out');
-
-        if ($steamid)
+        }
+        if ($steamid) {
             $this->player = new SteamUser($steamid);
+        }
 
         return !is_null($steamid);
     }
@@ -202,7 +206,7 @@ class SteamLogin implements SteamLoginInterface
     }
 
     /**
-     * Build the steam openid login URL
+     * Build the steam openid login URL.
      *
      * @param null $return
      *
@@ -233,10 +237,11 @@ class SteamLogin implements SteamLoginInterface
     }
 
     /**
-     * Validate Steam Login
+     * Validate Steam Login.
+     *
+     * @throws Exception
      *
      * @return string|int|null
-     * @throws Exception
      */
     private function validate()
     {
@@ -278,9 +283,9 @@ class SteamLogin implements SteamLoginInterface
             $steamid = is_numeric($matches[1]) ? $matches[1] : 0;
             $steamid = preg_match("#is_valid\s*:\s*true#i", $result) == 1 ? $steamid : null;
         } catch (Exception $e) {
-            if (env('APP_DEBUG'))
+            if (env('APP_DEBUG')) {
                 throw $e;
-            
+            }
             $steamid = null;
         }
 

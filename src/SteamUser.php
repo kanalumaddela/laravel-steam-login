@@ -2,131 +2,130 @@
 
 namespace kanalumaddela\LaravelSteamLogin;
 
-use Illuminate\Support\Facades\Config;
 use Exception;
+use Illuminate\Support\Facades\Config;
 
 class SteamUser
 {
     /**
-     * Steam Community URL using 64bit steamid
+     * Steam Community URL using 64bit steamid.
      *
      * @var string
      */
     const STEAM_PROFILE = 'https://steamcommunity.com/profiles/%s';
 
     /**
-     * Steam Community URL using custom id
+     * Steam Community URL using custom id.
      *
      * @var string
      */
     const STEAM_PROFILE_ID = 'https://steamcommunity.com/id/%s';
 
     /**
-     * Steam API GetPlayerSummaries URL
+     * Steam API GetPlayerSummaries URL.
      *
      * @var string
      */
     const STEAM_PLAYER_API = 'https://api.steampowered.com/ISteamUser/GetPlayerSummaries/v0002/?key=%s&steamids=%s';
 
     /**
-     * SteamID - 765611XXXXXXXXXXX
+     * SteamID - 765611XXXXXXXXXXX.
      *
      * @var int|string
      */
     public $steamid;
 
     /**
-     * SteamID2 - STEAM_X:Y:Z
+     * SteamID2 - STEAM_X:Y:Z.
      *
      * @var string
      */
     public $steamid2;
 
     /**
-     * SteamID3 - [U:1:X]
+     * SteamID3 - [U:1:X].
      *
      * @var string
      */
     public $steamid3;
 
     /**
-     * Player's small avatar 32x32
+     * Player's small avatar 32x32.
      *
      * @var string
      */
     public $avatarSmall;
 
     /**
-     * Player's medium avatar 64x64
+     * Player's medium avatar 64x64.
      *
      * @var string
      */
     public $avatarMedium;
 
     /**
-     * Player's medium avatar 184x184
+     * Player's medium avatar 184x184.
      *
      * @var string
      */
     public $avatarLarge;
 
     /**
-     * Player's display name
+     * Player's display name.
      *
      * @var string
      */
     public $name;
 
     /**
-     * Player's realname set
+     * Player's realname set.
      *
      * @var string|null
      */
     public $realName;
 
     /**
-     * Player's online state
+     * Player's online state.
      *
      * @var string
      */
     public $playerState;
 
     /**
-     * Player's status message
+     * Player's status message.
      *
      * @var string
      */
     public $stateMessage;
 
     /**
-     * Player's privacy setting
+     * Player's privacy setting.
      *
      * @var string
      */
     public $privacyState;
 
     /**
-     * Player's privacy setting
+     * Player's privacy setting.
      *
      * @var int
      */
     public $visibilityState;
 
     /**
-     * Player's profile URL
+     * Player's profile URL.
      */
     public $profileURL;
 
     /**
-     * Epoch timestamp of joining steam
+     * Epoch timestamp of joining steam.
      *
      * @var int|null
      */
     public $joined;
 
-
     /**
-     * personastates
+     * personastates.
      */
     private static $personastates = [
         'Offline',
@@ -151,18 +150,19 @@ class SteamUser
     }
 
     /**
-     * Retrieve a player's profile details using steam api or profile xml
+     * Retrieve a player's profile details using steam api or profile xml.
      *
      * @return $this
      */
     public function getPlayerInfo()
     {
         $this->userInfo();
+
         return $this;
     }
 
     /**
-     * Convert steamm id 64 bit to other variants
+     * Convert steamm id 64 bit to other variants.
      */
     private function convertID()
     {
@@ -171,11 +171,11 @@ class SteamUser
         $z = ($this->steamid >> 1) & 0x7FFFFFF;
 
         $this->steamid2 = "STEAM_$x:$y:$z";
-        $this->steamid3 = "[U:1:".($z * 2 +$y)."]";
+        $this->steamid3 = '[U:1:'.($z * 2 + $y).']';
     }
 
     /**
-     * Retrive a player's profile info from Steam
+     * Retrive a player's profile info from Steam.
      *
      * @throws Exception
      */
@@ -188,7 +188,7 @@ class SteamUser
                 $data = json_decode(SteamLogin::curl(sprintf(self::STEAM_PLAYER_API, Config::get('steam-login.api_key'), $this->steamid)));
                 $data = isset($data->response->players[0]) ? $data->response->players[0] : [];
 
-                $length = count((array)$data);
+                $length = count((array) $data);
 
                 if ($length > 0) {
                     $this->name = $data->personaname;
@@ -227,5 +227,4 @@ class SteamUser
                 break;
         }
     }
-
 }

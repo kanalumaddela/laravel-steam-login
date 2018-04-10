@@ -3,7 +3,6 @@
 namespace kanalumaddela\LaravelSteamLogin;
 
 use Illuminate\Support\ServiceProvider;
-use Illuminate\Support\Facades\View;
 
 class SteamLoginServiceProvider extends ServiceProvider
 {
