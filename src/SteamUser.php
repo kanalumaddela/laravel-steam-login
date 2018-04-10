@@ -184,15 +184,16 @@ class SteamUser
         switch ($method) {
             case 'api':
                 $data = json_decode(SteamLogin::curl(sprintf(self::STEAM_PLAYER_API, Config::get('steam-login.api_key'), $this->steamid)));
+                $data = isset($data->response->players[0]) ? $data->response->players[0] : [];
 
-                $info = isset($data->response->players[0]) ? $data->response->players[0] : [];
+                $length = count((array)$data);
 
-                if (count($info) > 0) {
+                if ($length > 0) {
                     $this->name = $data->personaname;
                     $this->realName = !empty($data->realname) ? $data->realname : null;
                     $this->playerState = $data->personastate != 0 ? 'Online' : 'Offline';
                     $this->privacyState = ($data->communityvisibilitystate == 1 || $data->communityvisibilitystate == 2) ? 'Private' : 'Public';
-                    $this->stateMessage = isset(self::$personastates[$info->personastate]) ? self::$personastates[$info->personastate] : $info->personastate;
+                    $this->stateMessage = isset(self::$personastates[$data->personastate]) ? self::$personastates[$data->personastate] : $data->personastate;
                     $this->visibilityState = $data->communityvisibilitystate;
                     $this->avatarSmall = $data->avatar;
                     $this->avatarMedium = $data->avatarmedium;
@@ -201,18 +202,18 @@ class SteamUser
                 }
                 break;
             case 'xml':
-                $data = simplexml_load_string(SteamLogin::curl(sprintf(str_replace('https://', 'http://', self::STEAM_PROFILE).'/?xml=1', $this->steamid)), 'SimpleXMLElement', LIBXML_NOCDATA);
+                $data = simplexml_load_string(SteamLogin::curl(sprintf(self::STEAM_PROFILE.'/?xml=1', $this->steamid)), 'SimpleXMLElement', LIBXML_NOCDATA);
 
                 if ($data !== false && !isset($data->error)) {
-                    $this->name = $data->steamID;
+                    $this->name = (string) $data->steamID;
                     $this->realName = !empty($data->realName) ? $data->realName : null;
                     $this->playerState = ucfirst($data->onlineState);
                     $this->privacyState = ($data->privacyState == 'friendsonly' || $data->privacyState == 'private') ? 'Private' : 'Public';
-                    $this->stateMessage = $data->stateMessage;
+                    $this->stateMessage = (string) $data->stateMessage;
                     $this->visibilityState = (int) $data->visibilityState;
-                    $this->avatarSmall = $data->avatarIcon;
-                    $this->avatarMedium = $data->avatarMedium;
-                    $this->avatarLarge = $data->avatarFull;
+                    $this->avatarSmall = (string) $data->avatarIcon;
+                    $this->avatarMedium = (string) $data->avatarMedium;
+                    $this->avatarLarge = (string) $data->avatarFull;
                     $this->joined = isset($data->memberSince) ? strtotime($data->memberSince) : null;
                 }
                 break;
