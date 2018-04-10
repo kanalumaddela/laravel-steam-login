@@ -85,7 +85,7 @@ class SteamLogin implements SteamLoginInterface
 
         $this->original_page = (url()->current() != url()->previous() && url()->current() != $this->routes['callback'] && url()->current() != $this->routes['login']) ? url()->previous() : url('/');
 
-        $this->loginURL = $this->createLoginURL($this->routes.'?redirect='.$this->original_page);
+        $this->loginURL = $this->createLoginURL($this->routes['callback'].'?redirect='.$this->original_page);
     }
 
     /**
