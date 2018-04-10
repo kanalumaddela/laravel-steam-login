@@ -178,6 +178,7 @@ class SteamLogin implements SteamLoginInterface
         }
 
         $this->convert($steamid);
+
         return true;
     }
 
@@ -189,11 +190,12 @@ class SteamLogin implements SteamLoginInterface
     public function getPlayerInfo()
     {
         $this->userInfo();
+
         return $this->player;
     }
 
     /**
-     * Convert a player's 64 bit steamid to SteamID2 & SteamID3
+     * Convert a player's 64 bit steamid to SteamID2 & SteamID3.
      *
      * @param $steamid
      */
