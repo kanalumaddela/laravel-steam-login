@@ -112,9 +112,9 @@ class SteamLogin implements SteamLoginInterface
      *
      * @param bool $info
      *
-     * @return \stdClass
+     * @return SteamUser
      */
-    public function getPlayer($info = false): \stdClass
+    public function getPlayer($info = false): SteamUser
     {
         return ($info ? $this->player->getPlayerInfo() : $this->player);
     }
@@ -153,6 +153,7 @@ class SteamLogin implements SteamLoginInterface
      * Check if login is valid
      *
      * @return bool
+     * @throws Exception
      */
     public function valid(): bool
     {
@@ -239,6 +240,7 @@ class SteamLogin implements SteamLoginInterface
      * Validate Steam Login
      *
      * @return string|int|null
+     * @throws Exception
      */
     private function validate()
     {

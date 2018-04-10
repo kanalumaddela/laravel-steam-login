@@ -3,7 +3,7 @@
 namespace kanalumaddela\LaravelSteamLogin;
 
 use Illuminate\Support\Facades\Config;
-use RuntimeException;
+use Exception;
 
 class SteamUser
 {
@@ -176,6 +176,8 @@ class SteamUser
 
     /**
      * Retrive a player's profile info from Steam
+     *
+     * @throws Exception
      */
     private function userInfo()
     {
@@ -215,6 +217,10 @@ class SteamUser
                     $this->avatarMedium = (string) $data->avatarMedium;
                     $this->avatarLarge = (string) $data->avatarFull;
                     $this->joined = isset($data->memberSince) ? strtotime($data->memberSince) : null;
+                } else {
+                    if (env('APP_DEBUG')) {
+                        throw new Exception('No XML data: '.(isset($data['error']) ? $data['error'] : 'please look into this'));
+                    }
                 }
                 break;
             default:
