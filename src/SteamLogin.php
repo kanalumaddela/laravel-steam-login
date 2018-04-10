@@ -178,27 +178,30 @@ class SteamLogin implements SteamLoginInterface
         }
 
         $this->convert($steamid);
-        $this->userInfo();
-
         return true;
     }
 
+    public function getPlayer()
+    {
+        return $this->player;
+    }
+
+    public function getPlayerInfo()
+    {
+        $this->userInfo();
+        return $this->player;
+    }
+
     /**
-     * Convert a player's 64 bit steamid.
+     * Convert a player's 64 bit steamid to SteamID2 & SteamID3
      *
      * @param $steamid
      */
-    public function convert($steamid)
+    private function convert($steamid)
     {
-        // convert to SteamID
-        $authserver = bcsub($steamid, '76561197960265728') & 1;
-        $authid = (bcsub($steamid, '76561197960265728') - $authserver) / 2;
-        $this->player->steamid2 = "STEAM_0:$authserver:$authid";
-
-        // convert to SteamID3
-        $steamid2_split = explode(':', $this->player->steamid2);
-        $y = (int) $steamid2_split[1];
-        $z = (int) $steamid2_split[2];
+        $y = bcsub($steamid, '76561197960265728') & 1;
+        $z = (bcsub($steamid, '76561197960265728') - $y) / 2;
+        $this->player->steamid2 = "STEAM_0:$y:$z";
         $this->player->steamid3 = '[U:1:'.($z * 2 + $y).']';
     }
 
@@ -209,7 +212,7 @@ class SteamLogin implements SteamLoginInterface
     {
         switch (Config::get('steam-login.method')) {
             case 'xml':
-                $data = simplexml_load_string(self::curl(sprintf(str_replace('https://', 'http://', self::STEAM_PROFILE).'/?xml=1', $this->player->steamid)), 'SimpleXMLElement', LIBXML_NOCDATA);
+                $data = simplexml_load_string(self::curl(sprintf(self::STEAM_PROFILE.'/?xml=1', $this->player->steamid)), 'SimpleXMLElement', LIBXML_NOCDATA);
 
                 $this->player->name = (string) $data->steamID;
                 $this->player->realName = (string) $data->realname;

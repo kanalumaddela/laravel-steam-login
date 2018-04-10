@@ -1,7 +1,6 @@
 <?php
 
 return [
-
     /*
      * Login route
      */
@@ -15,7 +14,7 @@ return [
     /*
      * Timeout when validating
      */
-    'timeout' => env('STEAM_TIMEOUT', 15),
+    'timeout' => env('STEAM_TIMEOUT', 5),
 
     /*
      * Method of retrieving user's info
@@ -26,5 +25,4 @@ return [
      * API key (http://steamcommunity.com/dev/apikey)
      */
     'api_key' => env('STEAM_API_KEY', ''),
-
 ];

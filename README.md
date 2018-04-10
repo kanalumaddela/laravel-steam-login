@@ -65,9 +65,9 @@ return [
 2. Add the routes in `routes/web.php`
 ```php
 // login/logout
-Route::get('login/steam', 'Auth\SteamLoginController@login')->name('login.steam'); // incase you want to have other login methods
 Route::get('logout', 'Auth\LoginController@logout')->name('logout'); // laravel's default logout, or use the post method if you know prefer
 
+Route::get('login/steam', 'Auth\SteamLoginController@login')->name('login.steam');
 Route::get('auth/steam', 'Auth\SteamLoginController@handle')->name('auth.steam');
 ```
 
@@ -179,7 +179,7 @@ class SteamLoginController extends Controller
         if ($this->steam->validate()) {
 
             // get player's info
-            $player = $this->steam->player;
+            $player = $this->steam->getPlayerInfo(); // or getPlayer() if you want to authenticate only
 
             // get user from DB or create and return them
             $user = $this->findOrNewUser($player);
