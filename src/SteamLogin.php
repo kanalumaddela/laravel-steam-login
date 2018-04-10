@@ -75,9 +75,8 @@ class SteamLogin implements SteamLoginInterface
         ];
 
         if (Config::get('steam-login.method') == 'api') {
-            if (empty(Config::get('steam-login.api_key'))) {
+            if (empty(Config::get('steam-login.api_key')))
                 throw new RuntimeException('Steam API not defined, please set it in your .env or in config/steam-login.php');
-            }
         }
 
         //
@@ -157,19 +156,16 @@ class SteamLogin implements SteamLoginInterface
      */
     public function valid(): bool
     {
-        if (!$this->validRequest()) {
+        if (!$this->validRequest())
             return false;
-        }
 
         $steamid = $this->validate();
 
-        if (is_null($steamid) && env('APP_DEBUG')) {
+        if (is_null($steamid) && env('APP_DEBUG'))
             throw new RuntimeException('Steam Auth failed or timed out');
-        }
 
-        if ($steamid) {
+        if ($steamid)
             $this->player = new SteamUser($steamid);
-        }
 
         return !is_null($steamid);
     }
@@ -282,9 +278,9 @@ class SteamLogin implements SteamLoginInterface
             $steamid = is_numeric($matches[1]) ? $matches[1] : 0;
             $steamid = preg_match("#is_valid\s*:\s*true#i", $result) == 1 ? $steamid : null;
         } catch (Exception $e) {
-            if (env('APP_DEBUG')) {
+            if (env('APP_DEBUG'))
                 throw $e;
-            }
+            
             $steamid = null;
         }
 
