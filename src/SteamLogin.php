@@ -68,8 +68,8 @@ class SteamLogin implements SteamLoginInterface
         $this->player = new \stdClass();
 
         $this->routes = [
-            'callback' => Route::has(Config::get('steam-login.routes.callback')) ? route(Config::get('steam-login.routes.callback')) : url(Config::get('steam-login.routes.callback')),
-            'login'    => Route::has(Config::get('steam-login.routes.login')) ? route(Config::get('steam-login.routes.login')) : url(Config::get('steam-login.routes.login')),
+            'callback' => Config::get('steam-login.routes.callback') != Config::get('steam-login.routes.login') ? url(Config::get('steam-login.routes.callback')) : url('/auth/steam'),
+            'login' => Config::get('steam-login.routes.login') != Config::get('steam-login.routes.callback') ? url(Config::get('steam-login.routes.login')) : url('/login/steam'),
         ];
 
         if (Config::get('steam-login.method') == 'api') {
@@ -78,9 +78,7 @@ class SteamLogin implements SteamLoginInterface
             }
         }
 
-        //
-
-        $this->original_page = (url()->current() != url()->previous() && url()->current() != $this->routes['callback'] && url()->current() != $this->routes['login']) ? url()->previous() : url('/');
+        $this->original_page = url()->previous() != url()->current() && url()->previous() != $this->routes['callback'] && url()->previous() != $this->routes['login'] ? url()->previous() : url('/');
 
         $this->loginURL = $this->createLoginURL($this->routes['callback'].'?redirect='.$this->original_page);
     }
