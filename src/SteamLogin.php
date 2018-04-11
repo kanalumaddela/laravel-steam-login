@@ -5,7 +5,6 @@ namespace kanalumaddela\LaravelSteamLogin;
 use Exception;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Config;
-use Illuminate\Support\Facades\Route;
 use RuntimeException;
 
 class SteamLogin implements SteamLoginInterface
@@ -69,7 +68,7 @@ class SteamLogin implements SteamLoginInterface
 
         $this->routes = [
             'callback' => Config::get('steam-login.routes.callback') != Config::get('steam-login.routes.login') ? url(Config::get('steam-login.routes.callback')) : url('/auth/steam'),
-            'login' => Config::get('steam-login.routes.login') != Config::get('steam-login.routes.callback') ? url(Config::get('steam-login.routes.login')) : url('/login/steam'),
+            'login'    => Config::get('steam-login.routes.login') != Config::get('steam-login.routes.callback') ? url(Config::get('steam-login.routes.login')) : url('/login/steam'),
         ];
 
         if (Config::get('steam-login.method') == 'api') {
