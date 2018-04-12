@@ -64,22 +64,26 @@ class SteamLogin implements SteamLoginInterface
     public function __construct(Request $request)
     {
         $this->request = $request;
-        $this->player = new \stdClass();
 
         $this->routes = [
-            'callback' => Config::get('steam-login.routes.callback') != Config::get('steam-login.routes.login') ? url(Config::get('steam-login.routes.callback')) : url('/auth/steam'),
-            'login'    => Config::get('steam-login.routes.login') != Config::get('steam-login.routes.callback') ? url(Config::get('steam-login.routes.login')) : url('/login/steam'),
+            Config::get('steam-login.routes.callback') != Config::get('steam-login.routes.login') ? url(Config::get('steam-login.routes.callback')) : url('/auth/steam'),
+            Config::get('steam-login.routes.login') != Config::get('steam-login.routes.callback') ? url(Config::get('steam-login.routes.login')) : url('/login/steam'),
+            Config::get('steam-login.routes.ignore'),
         ];
 
-        if (Config::get('steam-login.method') == 'api') {
-            if (empty(Config::get('steam-login.api_key'))) {
-                throw new RuntimeException('Steam API not defined, please set it in your .env or in config/steam-login.php');
-            }
+        if (Config::get('steam-login.method') == 'api' && empty(Config::get('steam-login.api_key'))) {
+            throw new RuntimeException('Steam API not defined, please set it in your .env or in config/steam-login.php');
         }
 
-        $this->original_page = url()->previous() != url()->current() && url()->previous() != $this->routes['callback'] && url()->previous() != $this->routes['login'] ? url()->previous() : url('/');
+        if ($this->request->session()->has('steamlogin_original_page')) {
+            $this->original_page = $this->request->session()->pull('steamlogin_original_page');
+            $this->original_page = url()->previous() != url()->current() && !in_array(url()->previous(), $this->routes) ? url()->previous() : $this->original_page;
+        } else {
+            $this->original_page = url()->previous() != url()->current() && !in_array(url()->previous(), $this->routes) ? url()->previous() : url('/');
+            $this->request->session()->put('steamlogin_original_page', $this->original_page);
+        }
 
-        $this->loginURL = $this->createLoginURL($this->routes['callback'].'?redirect='.$this->original_page);
+        $this->loginURL = $this->createLoginURL($this->routes[0].'?redirect='.$this->original_page);
     }
 
     /**
@@ -131,7 +135,7 @@ class SteamLogin implements SteamLoginInterface
     {
         $original_page = $this->request->input('redirect', null);
 
-        return redirect($original_page != $this->routes['login'] && $original_page != $this->routes['callback'] ? $original_page : url('/'));
+        return redirect($original_page != $this->routes[1] && $original_page != $this->routes[0] ? $original_page : url('/'));
     }
 
     /**
@@ -214,7 +218,7 @@ class SteamLogin implements SteamLoginInterface
         $params = [
             'openid.ns'         => self::OPENID_SPECS,
             'openid.mode'       => 'checkid_setup',
-            'openid.return_to'  => (!empty($return) ? $return : $this->routes['callback']),
+            'openid.return_to'  => (!empty($return) ? $return : $this->routes[0]),
             'openid.realm'      => $this->request->getSchemeAndHttpHost(),
             'openid.identity'   => self::OPENID_SPECS.'/identifier_select',
             'openid.claimed_id' => self::OPENID_SPECS.'/identifier_select',

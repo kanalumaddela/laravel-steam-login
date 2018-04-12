@@ -23,11 +23,15 @@ return [
     'universe' => env('STEAM_UNIVERSE', false),
 
     /*
-     * Routes used, named routes are also accepted
+     * Routes used, named routes will not work here
+     * callback - the route used after the user returns from signing into steam
+     * login - a static url that redirects to steam
+     * ignore - an array of additional routes you want to also ignore when determing the previous url
      */
     'routes' => [
         'callback' => env('STEAM_CALLBACK_ROUTE', '/auth/steam'),
         'login'    => env('STEAM_LOGIN_ROUTE', '/login/steam'),
+        'ignore' => [],
     ],
 
 ];
