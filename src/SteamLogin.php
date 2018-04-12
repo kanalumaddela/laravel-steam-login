@@ -70,7 +70,7 @@ class SteamLogin implements SteamLoginInterface
             Config::get('steam-login.routes.login') != Config::get('steam-login.routes.callback') ? url(Config::get('steam-login.routes.login')) : url('/login/steam'),
         ];
 
-        $this->routes = array_merge($this->routes, Config::get('steam-login.routes.ignore'));
+        $this->routes = array_merge($this->routes, Config::get('steam-login.routes.ignore', []));
 
         if (Config::get('steam-login.method') == 'api' && empty(Config::get('steam-login.api_key'))) {
             throw new RuntimeException('Steam API not defined, please set it in your .env or in config/steam-login.php');
