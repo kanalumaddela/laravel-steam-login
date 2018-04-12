@@ -31,7 +31,7 @@ return [
     'routes' => [
         'callback' => env('STEAM_CALLBACK_ROUTE', '/auth/steam'),
         'login'    => env('STEAM_LOGIN_ROUTE', '/login/steam'),
-        'ignore' => [],
+        'ignore'   => [],
     ],
 
 ];
