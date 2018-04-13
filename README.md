@@ -28,4 +28,4 @@ Coming soon...
 
 Thanks to these libs which led me to make this
 - https://github.com/Ehesp/Steam-Login (Parts of code used and re-purposed for laravel)
-- https://github.com/invisnik/laravel-steam-auth (Getting me to create a laravel steam auth that isn't shit, your code *totally* doesn't look like Ehesp's you cuck. For others reading this compare the code, invisnik can't even give proper credit)
+- https://github.com/invisnik/laravel-steam-auth (Getting me to create my own laravel steam auth)
