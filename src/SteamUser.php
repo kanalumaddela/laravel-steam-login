@@ -2,9 +2,9 @@
 
 namespace kanalumaddela\LaravelSteamLogin;
 
-use SteamID;
-use Illuminate\Support\Facades\Config;
 use GuzzleHttp\Client as GuzzleClient;
+use Illuminate\Support\Facades\Config;
+use SteamID;
 
 class SteamUser extends SteamID
 {
@@ -45,14 +45,14 @@ class SteamUser extends SteamID
 
     /**
      * SteamID3 - [U:1:W].
-     * W = Z*2+Y
+     * W = Z*2+Y.
      *
      * @var string
      */
     public $steamid3;
 
     /**
-     * Steam AccountID - W
+     * Steam AccountID - W.
      *
      * @var int
      */
@@ -126,7 +126,7 @@ class SteamUser extends SteamID
      * Can be either:
      *   - https://steamcommunity.com/profiles/<steamid>
      *   - https://steamcommunity.com/profiles/[U:1:W]
-     *   - https://steamcommunity.com/id/<name>
+     *   - https://steamcommunity.com/id/<name>.
      */
     public $profileURL;
 
@@ -138,19 +138,19 @@ class SteamUser extends SteamID
     public $joined;
 
     /**
-     * Profile data retrieval method to use
+     * Profile data retrieval method to use.
      */
     protected $method = 'xml';
 
     /**
-     * URL to use when retrieving a player's profile
+     * URL to use when retrieving a player's profile.
      *
      * @var string
      */
     protected $profileDataUrl;
 
     /**
-     * Guzzle instance
+     * Guzzle instance.
      *
      * @var \GuzzleHttp\Client
      */
@@ -181,9 +181,9 @@ class SteamUser extends SteamID
 
         $this->guzzle = $guzzle ?? new GuzzleClient();
 
-        $this->steamid   = $this->ConvertToUInt64();
-        $this->steamid2  = $this->RenderSteam2();
-        $this->steamid3  = $this->RenderSteam3();
+        $this->steamid = $this->ConvertToUInt64();
+        $this->steamid2 = $this->RenderSteam2();
+        $this->steamid3 = $this->RenderSteam3();
         $this->accountId = $this->GetAccountID();
 
         $this->method = in_array(Config::get('steam-login.method', 'xml'), ['api', 'xml']) ?? 'xml';
@@ -199,7 +199,7 @@ class SteamUser extends SteamID
     }
 
     /**
-     * Retrieve a player's profile info from Steam via API or XML data
+     * Retrieve a player's profile info from Steam via API or XML data.
      */
     private function userInfo()
     {

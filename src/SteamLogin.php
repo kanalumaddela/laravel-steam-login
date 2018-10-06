@@ -3,9 +3,9 @@
 namespace kanalumaddela\LaravelSteamLogin;
 
 use Exception;
+use GuzzleHttp\Client as GuzzleClient;
 use Illuminate\Support\Facades\Config;
 use RuntimeException;
-use GuzzleHttp\Client as GuzzleClient;
 
 class SteamLogin implements SteamLoginInterface
 {
@@ -50,7 +50,7 @@ class SteamLogin implements SteamLoginInterface
     protected $previousPage;
 
     /**
-     * Laravel Container/Application
+     * Laravel Container/Application.
      *
      * @var \Illuminate\Http\Request
      */
@@ -59,21 +59,21 @@ class SteamLogin implements SteamLoginInterface
     /**
      * Laravel Request instance.
      *
-     * @var \Illuminate\Http\Request $request
+     * @var \Illuminate\Http\Request
      */
     protected $request;
 
     /**
-     * Guzzle instance
+     * Guzzle instance.
      *
      * @var \GuzzleHttp\Client
      */
     protected $guzzle;
 
     /**
-     * Defines if app is HTTPS
+     * Defines if app is HTTPS.
      *
-     * @var boolean
+     * @var bool
      */
     protected $https;
 
@@ -95,8 +95,9 @@ class SteamLogin implements SteamLoginInterface
     /**
      * @param string $name
      *
-     * @return mixed
      * @throws Exception
+     *
+     * @return mixed
      */
     public function __get($name)
     {
@@ -134,8 +135,9 @@ class SteamLogin implements SteamLoginInterface
      *
      * @param bool $info
      *
-     * @return SteamUser
      * @throws Exception
+     *
+     * @return SteamUser
      */
     public function getPlayer($info = false): SteamUser
     {
@@ -244,7 +246,7 @@ class SteamLogin implements SteamLoginInterface
 
             $response = $this->guzzle->post(self::OPENID_STEAM, [
                 'connect_timeout' => Config::get('steam-login.timeout'),
-                'form_params' => $params
+                'form_params'     => $params,
             ]);
 
             $result = $response->getBody();
