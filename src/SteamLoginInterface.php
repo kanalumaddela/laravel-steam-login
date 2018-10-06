@@ -2,11 +2,13 @@
 
 namespace kanalumaddela\LaravelSteamLogin;
 
+use Illuminate\Http\RedirectResponse;
+
 interface SteamLoginInterface
 {
     public function validate();
 
-    public function redirectToSteam();
+    public function redirectToSteam(): RedirectResponse;
 
-    public function getLoginUrl();
+    public function getLoginUrl(): string;
 }
