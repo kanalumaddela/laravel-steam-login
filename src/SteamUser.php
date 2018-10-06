@@ -31,7 +31,7 @@ class SteamUser extends SteamID
     const STEAM_PLAYER_API = 'https://api.steampowered.com/ISteamUser/GetPlayerSummaries/v0002/?key=%s&steamids=%s';
 
     /**
-     * Fluent instance of player data
+     * Fluent instance of player data.
      *
      * @var \Illuminate\Support\Fluent
      */
