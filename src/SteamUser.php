@@ -109,17 +109,17 @@ class SteamUser
 
         $this->method = Config::get('steam-login.method', 'xml') == 'api' ? 'api' : 'xml';
         $this->profileDataUrl = $this->method == 'xml' ? $this->attributes->profileDataUrl : sprintf(self::STEAM_PLAYER_API, Config::get('steam-login.api_key'), $this->attributes->steamid);
-
     }
 
     /**
-     * magic methiod __call
+     * magic methiod __call.
      *
      * @param $name
      * @param $arguments
      *
-     * @return mixed
      * @throws \Exception
+     *
+     * @return mixed
      */
     public function __call($name, $arguments)
     {
@@ -129,7 +129,7 @@ class SteamUser
         if (method_exists($this->steamId, $name)) {
             return call_user_func_array([$this->steamId, $name], $arguments);
         }
-        if (substr($name, 0, 3) === "get") {
+        if (substr($name, 0, 3) === 'get') {
             $property = lcfirst(substr($arguments[0], 3));
 
             return call_user_func_array([$this, '__get'], [$property]);
@@ -139,7 +139,7 @@ class SteamUser
     }
 
     /**
-     * magic method __get
+     * magic method __get.
      *
      * @param $name
      *
@@ -151,7 +151,7 @@ class SteamUser
     }
 
     /**
-     * magic method __toString using Fluent toJson()
+     * magic method __toString using Fluent toJson().
      *
      * @return string
      */
@@ -161,7 +161,7 @@ class SteamUser
     }
 
     /**
-     * Retrieve a user's steam info set its attributes
+     * Retrieve a user's steam info set its attributes.
      *
      * @return $this
      */
