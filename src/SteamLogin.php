@@ -3,9 +3,9 @@
 namespace kanalumaddela\LaravelSteamLogin;
 
 use Exception;
-use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Config;
 use RuntimeException;
+use GuzzleHttp\Client as GuzzleClient;
 
 class SteamLogin implements SteamLoginInterface
 {
@@ -35,7 +35,7 @@ class SteamLogin implements SteamLoginInterface
      *
      * @var string
      */
-    private $loginURL;
+    private $loginUrl;
 
     /**
      * Steam Auth related routes.
@@ -47,44 +47,64 @@ class SteamLogin implements SteamLoginInterface
     /**
      * @var string
      */
-    protected $original_page;
+    protected $previousPage;
+
+    /**
+     * Laravel Container/Application
+     *
+     * @var \Illuminate\Http\Request
+     */
+    protected $app;
 
     /**
      * Laravel Request instance.
      *
-     * @var Request
+     * @var \Illuminate\Http\Request $request
      */
     protected $request;
 
     /**
+     * Guzzle instance
+     *
+     * @var \GuzzleHttp\Client
+     */
+    protected $guzzle;
+
+    /**
+     * Defines if app is HTTPS
+     *
+     * @var boolean
+     */
+    protected $https;
+
+    /**
      * SteamLogin constructor.
      *
-     * @param Request $request
+     * @param $app
      */
-    public function __construct(Request $request)
+    public function __construct($app)
     {
-        $this->request = $request;
+        $this->app = $app;
+        $this->request = $app->request;
+        $this->guzzle = new GuzzleClient();
+        $this->https = $this->request->server('HTTP_X_FORWARDED_PROTO') == 'https' ?? isset($_SERVER['https']);
 
-        $this->routes = [
-            Config::get('steam-login.routes.callback') != Config::get('steam-login.routes.login') ? url(Config::get('steam-login.routes.callback')) : url('/auth/steam'),
-            Config::get('steam-login.routes.login') != Config::get('steam-login.routes.callback') ? url(Config::get('steam-login.routes.login')) : url('/login/steam'),
-        ];
+        $this->previousPage = url()->previous();
+    }
 
-        $this->routes = array_merge($this->routes, Config::get('steam-login.routes.ignore', []));
-
-        if (Config::get('steam-login.method') == 'api' && empty(Config::get('steam-login.api_key'))) {
-            throw new RuntimeException('Steam API not defined, please set it in your .env or in config/steam-login.php');
+    /**
+     * @param string $name
+     *
+     * @return mixed
+     * @throws Exception
+     */
+    public function __get($name)
+    {
+        if (isset($this->{$name})) {
+            return $this->{$name};
         }
 
-        if (session('steamlogin_original_page')) {
-            $this->original_page = session('steamlogin_original_page');
-            $this->original_page = url()->previous() != url()->current() && !in_array(url()->previous(), $this->routes) ? url()->previous() : $this->original_page;
-        } else {
-            $this->original_page = url()->previous() != url()->current() && !in_array(url()->previous(), $this->routes) ? url()->previous() : url('/');
-            session(['steamlogin_original_page' => $this->original_page]);
-        }
-
-        $this->loginURL = $this->createLoginURL($this->routes[0].'?redirect='.$this->original_page);
+        throw new Exception('Undefined property :'.$name);
     }
 
     /**
@@ -94,7 +114,7 @@ class SteamLogin implements SteamLoginInterface
      */
     public function getLoginURL(): string
     {
-        return $this->loginURL;
+        return $this->loginUrl;
     }
 
     /**
@@ -115,28 +135,16 @@ class SteamLogin implements SteamLoginInterface
      * @param bool $info
      *
      * @return SteamUser
+     * @throws Exception
      */
     public function getPlayer($info = false): SteamUser
     {
-        return $info ? $this->player->getPlayerInfo() : $this->player;
+        return $info ? $this->player->getUserInfo() : $this->player;
     }
 
-    /**
-     * Redirect to steam.
-     */
-    public function redirect()
+    public function redirectToSteam()
     {
-        return redirect($this->loginURL);
-    }
-
-    /**
-     * Redirect back to their original page.
-     */
-    public function originalPage()
-    {
-        $original_page = $this->request->input('redirect', null);
-
-        return redirect($original_page != $this->routes[1] && $original_page != $this->routes[0] ? $original_page : url('/'));
+        return redirect($this->loginUrl);
     }
 
     /**
@@ -148,7 +156,7 @@ class SteamLogin implements SteamLoginInterface
      */
     public function loginButton($type = 'small'): string
     {
-        return sprintf('<a href="%s"><img src="%s" /></a>', $this->loginURL, self::button($type));
+        return sprintf('<a href="%s"><img src="%s" /></a>', $this->loginUrl, self::button($type));
     }
 
     /**
@@ -189,53 +197,24 @@ class SteamLogin implements SteamLoginInterface
     }
 
     /**
-     * Simple cURL GET.
-     *
-     * @param string
-     *
-     * @return string
-     */
-    public static function curl($url)
-    {
-        $curl = curl_init();
-        curl_setopt($curl, CURLOPT_SSL_VERIFYPEER, false);
-        curl_setopt($curl, CURLOPT_RETURNTRANSFER, true);
-        curl_setopt($curl, CURLOPT_URL, $url);
-        $data = curl_exec($curl);
-        curl_close($curl);
-
-        return $data;
-    }
-
-    /**
      * Build the steam openid login URL.
      *
      * @param null $return
      *
      * @return string
      */
-    private function createLoginURL($return = null): string
+    private function createLoginUrl($return = null): string
     {
         $params = [
             'openid.ns'         => self::OPENID_SPECS,
             'openid.mode'       => 'checkid_setup',
             'openid.return_to'  => (!empty($return) ? $return : $this->routes[0]),
-            'openid.realm'      => $this->request->getSchemeAndHttpHost(),
+            'openid.realm'      => ($this->https ? 'https' : 'http').'://'.$this->request->getHttpHost(),
             'openid.identity'   => self::OPENID_SPECS.'/identifier_select',
             'openid.claimed_id' => self::OPENID_SPECS.'/identifier_select',
         ];
 
         return self::OPENID_STEAM.'?'.http_build_query($params);
-    }
-
-    /**
-     * Check if query paramters are valid post steam login.
-     *
-     * @return bool
-     */
-    private function validRequest()
-    {
-        return $this->request->has('openid_assoc_handle') && $this->request->has('openid_claimed_id') && $this->request->has('openid_sig') && $this->request->has('openid_signed');
     }
 
     /**
@@ -245,7 +224,7 @@ class SteamLogin implements SteamLoginInterface
      *
      * @return string|int|null
      */
-    private function validate()
+    public function validate()
     {
         try {
             $params = [
@@ -258,28 +237,18 @@ class SteamLogin implements SteamLoginInterface
             $signed = explode(',', $this->request->input('openid_signed'));
 
             foreach ($signed as $item) {
-                $value = $this->request->input('openid_'.str_replace('.', '_', $item));
-                $params['openid.'.$item] = get_magic_quotes_gpc() ? stripslashes($value) : $value;
+                $params['openid.'.$item] = $this->request->input('openid_'.str_replace('.', '_', $item));
             }
 
             $params['openid.mode'] = 'check_authentication';
 
-            $data = http_build_query($params);
-
-            $curl = curl_init();
-            curl_setopt($curl, CURLOPT_POSTFIELDS, $data);
-            curl_setopt($curl, CURLOPT_POST, 1);
-            curl_setopt($curl, CURLOPT_SSL_VERIFYPEER, false);
-            curl_setopt($curl, CURLOPT_RETURNTRANSFER, true);
-            curl_setopt($curl, CURLOPT_HTTPHEADER, [
-                'Accept-language: en',
-                'Content-type: application/x-www-form-urlencoded',
-                'Content-Length: '.strlen($data),
+            $response = $this->guzzle->post(self::OPENID_STEAM, [
+                'connect_timeout' => Config::get('steam-login.timeout'),
+                'form_params' => $params
             ]);
 
-            curl_setopt($curl, CURLOPT_URL, self::OPENID_STEAM);
-            $result = curl_exec($curl);
-            curl_close($curl);
+            $result = $response->getBody();
+            dump($result);
 
             preg_match('#^https?://steamcommunity.com/openid/id/([0-9]{17,25})#', $this->request->input('openid_claimed_id'), $matches);
             $steamid = is_numeric($matches[1]) ? $matches[1] : 0;
@@ -292,5 +261,22 @@ class SteamLogin implements SteamLoginInterface
         }
 
         return $steamid;
+    }
+
+    /**
+     * Check if query paramters are valid post steam login.
+     *
+     * @return bool
+     */
+    private function validRequest()
+    {
+        $params = [
+            'openid_assoc_handle',
+            'openid_claimed_id',
+            'openid_sig',
+            'openid_signed',
+        ];
+
+        return $this->request->filled($params);
     }
 }

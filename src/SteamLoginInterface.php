@@ -4,5 +4,9 @@ namespace kanalumaddela\LaravelSteamLogin;
 
 interface SteamLoginInterface
 {
-    public function redirect();
+    public function validate();
+
+    public function redirectToSteam();
+
+    public function getLoginUrl();
 }

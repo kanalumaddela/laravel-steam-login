@@ -14,9 +14,15 @@
     "require": {
         "php": "^7.0",
         "ext-curl": "*",
+        "ext-json": "*",
+        "ext-libxml": "*",
+        "ext-simplexml": "*",
         "illuminate/http": "5.*",
         "illuminate/routing": "5.*",
-        "illuminate/support": "5.*"
+        "illuminate/support": "5.*",
+        "illuminate/container": "5.*",
+        "xpaw/steamid": "*",
+        "guzzlehttp/guzzle": "^6.3"
     },
     "autoload": {
         "psr-4": {

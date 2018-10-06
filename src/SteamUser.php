@@ -2,10 +2,11 @@
 
 namespace kanalumaddela\LaravelSteamLogin;
 
-use Exception;
+use SteamID;
 use Illuminate\Support\Facades\Config;
+use GuzzleHttp\Client as GuzzleClient;
 
-class SteamUser
+class SteamUser extends SteamID
 {
     /**
      * Steam Community URL using 64bit steamid.
@@ -31,7 +32,7 @@ class SteamUser
     /**
      * SteamID - 765611XXXXXXXXXXX.
      *
-     * @var int|string
+     * @var int
      */
     public $steamid;
 
@@ -43,11 +44,19 @@ class SteamUser
     public $steamid2;
 
     /**
-     * SteamID3 - [U:1:X].
+     * SteamID3 - [U:1:W].
+     * W = Z*2+Y
      *
      * @var string
      */
     public $steamid3;
+
+    /**
+     * Steam AccountID - W
+     *
+     * @var int
+     */
+    public $accountId;
 
     /**
      * Player's small avatar 32x32.
@@ -114,6 +123,10 @@ class SteamUser
 
     /**
      * Player's profile URL.
+     * Can be either:
+     *   - https://steamcommunity.com/profiles/<steamid>
+     *   - https://steamcommunity.com/profiles/[U:1:W]
+     *   - https://steamcommunity.com/id/<name>
      */
     public $profileURL;
 
@@ -125,9 +138,28 @@ class SteamUser
     public $joined;
 
     /**
+     * Profile data retrieval method to use
+     */
+    protected $method = 'xml';
+
+    /**
+     * URL to use when retrieving a player's profile
+     *
+     * @var string
+     */
+    protected $profileDataUrl;
+
+    /**
+     * Guzzle instance
+     *
+     * @var \GuzzleHttp\Client
+     */
+    protected $guzzle;
+
+    /**
      * personastates.
      */
-    private static $personastates = [
+    private static $personaStates = [
         'Offline',
         'Online',
         'Busy',
@@ -138,23 +170,28 @@ class SteamUser
     ];
 
     /**
-     * SteamUser constructor.
+     * SteamUser constructor. Extends SteamID and constructs that first.
      *
-     * @param string $steamid
+     * @param string            $steamid
+     * @param GuzzleClient|null $guzzle
      */
-    public function __construct($steamid)
+    public function __construct($steamid, GuzzleClient $guzzle = null)
     {
-        $this->steamid = $steamid;
-        $this->profileURL = sprintf(self::STEAM_PROFILE, $steamid);
-        $this->convertID();
+        parent::__construct($steamid);
+
+        $this->guzzle = $guzzle ?? new GuzzleClient();
+
+        $this->steamid   = $this->ConvertToUInt64();
+        $this->steamid2  = $this->RenderSteam2();
+        $this->steamid3  = $this->RenderSteam3();
+        $this->accountId = $this->GetAccountID();
+
+        $this->method = in_array(Config::get('steam-login.method', 'xml'), ['api', 'xml']) ?? 'xml';
+        $this->profileURL = sprintf(self::STEAM_PROFILE, $this->steamid3);
+        $this->profileDataUrl = $this->method == 'xml' ? sprintf(self::STEAM_PROFILE.'/?xml=1', $this->steamid) : sprintf(self::STEAM_PLAYER_API, Config::get('steam-login.api_key'), $this->steamid);
     }
 
-    /**
-     * Retrieve a player's profile details using steam api or profile xml.
-     *
-     * @return $this
-     */
-    public function getPlayerInfo()
+    public function getUserInfo()
     {
         $this->userInfo();
 
@@ -162,40 +199,23 @@ class SteamUser
     }
 
     /**
-     * Convert steamm id 64 bit to other variants.
-     */
-    private function convertID()
-    {
-        $x = ($this->steamid >> 56) & 0xFF;
-        $y = Config::get('steam-login.universe') ? $this->steamid & 1 : 0;
-        $z = ($this->steamid >> 1) & 0x7FFFFFF;
-
-        $this->steamid2 = "STEAM_$x:$y:$z";
-        $this->steamid3 = '[U:1:'.($z * 2 + $y).']';
-    }
-
-    /**
-     * Retrive a player's profile info from Steam.
-     *
-     * @throws Exception
+     * Retrieve a player's profile info from Steam via API or XML data
      */
     private function userInfo()
     {
-        $method = in_array(Config::get('steam-login.method'), ['api', 'xml']) ? Config::get('steam-login.method') : 'xml';
+        $response = $this->guzzle->get($this->profileDataUrl, ['connect_timeout' => Config::get('steam-login.timeout')]);
+        $data = $this->method == 'xml' ? simplexml_load_string($response->getBody(), 'SimpleXMLElement', LIBXML_NOCDATA) : json_decode($response->getBody());
 
-        switch ($method) {
+        switch ($this->method) {
             case 'api':
-                $data = json_decode(SteamLogin::curl(sprintf(self::STEAM_PLAYER_API, Config::get('steam-login.api_key'), $this->steamid)));
-                $data = isset($data->response->players[0]) ? $data->response->players[0] : [];
+                $data = isset($data->response->players[0]) ? $data->response->players[0] : null;
 
-                $length = count((array) $data);
-
-                if ($length > 0) {
+                if ($data) {
                     $this->name = $data->personaname;
                     $this->realName = !empty($data->realname) ? $data->realname : null;
                     $this->playerState = $data->personastate != 0 ? 'Online' : 'Offline';
                     $this->privacyState = ($data->communityvisibilitystate == 1 || $data->communityvisibilitystate == 2) ? 'Private' : 'Public';
-                    $this->stateMessage = isset(self::$personastates[$data->personastate]) ? self::$personastates[$data->personastate] : $data->personastate;
+                    $this->stateMessage = isset(self::$personaStates[$data->personastate]) ? self::$personaStates[$data->personastate] : $data->personastate;
                     $this->visibilityState = $data->communityvisibilitystate;
                     $this->avatarSmall = $data->avatar;
                     $this->avatarMedium = $data->avatarmedium;
@@ -204,8 +224,6 @@ class SteamUser
                 }
                 break;
             case 'xml':
-                $data = simplexml_load_string(SteamLogin::curl(sprintf(self::STEAM_PROFILE.'/?xml=1', $this->steamid)), 'SimpleXMLElement', LIBXML_NOCDATA);
-
                 if ($data !== false && !isset($data->error)) {
                     $this->name = (string) $data->steamID;
                     $this->realName = !empty($data->realName) ? $data->realName : null;
@@ -217,10 +235,6 @@ class SteamUser
                     $this->avatarMedium = (string) $data->avatarMedium;
                     $this->avatarLarge = (string) $data->avatarFull;
                     $this->joined = isset($data->memberSince) ? strtotime($data->memberSince) : null;
-                } else {
-                    if (env('APP_DEBUG')) {
-                        throw new Exception('No XML data: '.(isset($data['error']) ? $data['error'] : 'please look into this'));
-                    }
                 }
                 break;
             default:
