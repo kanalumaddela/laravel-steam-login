@@ -4,6 +4,7 @@ namespace kanalumaddela\LaravelSteamLogin;
 
 use GuzzleHttp\Client as GuzzleClient;
 use Illuminate\Support\Facades\Config;
+use Illuminate\Support\Fluent;
 use SteamID;
 
 class SteamUser extends SteamID
@@ -28,6 +29,13 @@ class SteamUser extends SteamID
      * @var string
      */
     const STEAM_PLAYER_API = 'https://api.steampowered.com/ISteamUser/GetPlayerSummaries/v0002/?key=%s&steamids=%s';
+
+    /**
+     * Fluent instance of player data
+     *
+     * @var \Illuminate\Support\Fluent
+     */
+    public $fluent;
 
     /**
      * SteamID - 765611XXXXXXXXXXX.
@@ -139,6 +147,8 @@ class SteamUser extends SteamID
 
     /**
      * Profile data retrieval method to use.
+     *
+     * @var string
      */
     protected $method = 'xml';
 
@@ -186,9 +196,14 @@ class SteamUser extends SteamID
         $this->steamid3 = $this->RenderSteam3();
         $this->accountId = $this->GetAccountID();
 
-        $this->method = in_array(Config::get('steam-login.method', 'xml'), ['api', 'xml']) ?? 'xml';
+        $this->method = Config::get('steam-login.method', 'xml') == 'api' ? 'api' : 'xml';
         $this->profileURL = sprintf(self::STEAM_PROFILE, $this->steamid3);
         $this->profileDataUrl = $this->method == 'xml' ? sprintf(self::STEAM_PROFILE.'/?xml=1', $this->steamid) : sprintf(self::STEAM_PLAYER_API, Config::get('steam-login.api_key'), $this->steamid);
+    }
+
+    public function __toString()
+    {
+        return 'todo';
     }
 
     public function getUserInfo()
@@ -229,7 +244,7 @@ class SteamUser extends SteamID
                     $this->realName = !empty($data->realName) ? $data->realName : null;
                     $this->playerState = ucfirst($data->onlineState);
                     $this->privacyState = ($data->privacyState == 'friendsonly' || $data->privacyState == 'private') ? 'Private' : 'Public';
-                    $this->stateMessage = (string) $data->stateMessage;
+                    $this->stateMessage = (string) $data->stateMessage == 'Last Online ' ? 'Last Online: Unknown' : $data->stateMessage;
                     $this->visibilityState = (int) $data->visibilityState;
                     $this->avatarSmall = (string) $data->avatarIcon;
                     $this->avatarMedium = (string) $data->avatarMedium;
