@@ -11,14 +11,14 @@ use kanalumaddela\LaravelSteamLogin\SteamUser;
 class SteamLoginController extends Controller
 {
     /**
-     * SteamLogin instance
+     * SteamLogin instance.
      *
      * @var SteamLogin
      */
     protected $request;
 
     /**
-     * SteamLogin instance
+     * SteamLogin instance.
      *
      * @var SteamLogin
      */
@@ -27,11 +27,11 @@ class SteamLoginController extends Controller
     public function __construct(Request $request, SteamLogin $steam)
     {
         $this->request = $request;
-        $this->steam   = $steam;
+        $this->steam = $steam;
     }
 
     /**
-     * Redirect user to steam login page
+     * Redirect user to steam login page.
      *
      * @return \Illuminate\Http\RedirectResponse
      */
@@ -41,7 +41,7 @@ class SteamLoginController extends Controller
     }
 
     /**
-     * Validate after returning from steam
+     * Validate after returning from steam.
      */
     public function auth()
     {
@@ -57,7 +57,7 @@ class SteamLoginController extends Controller
     }
 
     /**
-     * Throw SteamLogin exception
+     * Throw SteamLogin exception.
      *
      * @param Exception $exception
      *
@@ -69,7 +69,7 @@ class SteamLoginController extends Controller
     }
 
     /**
-     * Called after the user is successfully validated
+     * Called after the user is successfully validated.
      *
      * @param Request   $request
      * @param SteamUser $steamUser
@@ -78,7 +78,4 @@ class SteamLoginController extends Controller
     {
         // todo
     }
-
 }
-
-

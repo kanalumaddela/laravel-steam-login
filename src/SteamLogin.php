@@ -44,14 +44,14 @@ class SteamLogin implements SteamLoginInterface
     protected $previousPage;
 
     /**
-     * Login route to redirect to steam
+     * Login route to redirect to steam.
      *
      * @var string
      */
     protected $loginRoute;
 
     /**
-     * Auth handle route after returning from steam
+     * Auth handle route after returning from steam.
      *
      * @var string
      */
@@ -141,7 +141,7 @@ class SteamLogin implements SteamLoginInterface
     }
 
     /**
-     * Redirect to steam login page
+     * Redirect to steam login page.
      *
      * @return \Illuminate\Http\RedirectResponse
      */

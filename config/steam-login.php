@@ -21,13 +21,13 @@ return [
      */
     'routes' => [
         'enabled' => env('STEAM_LOGIN_ROUTE_ENABLED', true),
-        'login' => [
+        'login'   => [
             'path' => env('STEAM_LOGIN_ROUTE_PATH', 'login/steam'),
             'name' => env('STEAM_LOGIN_ROUTE_NAME', 'login.steam'),
         ],
         'auth' => [
             'path' => env('STEAM_LOGIN_AUTH_PATH', 'auth/steam'),
             'name' => env('STEAM_LOGIN_AUTH_NAME', 'auth.steam'),
-        ]
+        ],
     ],
 ];
