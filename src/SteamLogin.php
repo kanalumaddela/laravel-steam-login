@@ -4,6 +4,7 @@ namespace kanalumaddela\LaravelSteamLogin;
 
 use Exception;
 use GuzzleHttp\Client as GuzzleClient;
+use Illuminate\Contracts\Foundation\Application;
 use Illuminate\Support\Facades\Config;
 use RuntimeException;
 
@@ -82,7 +83,7 @@ class SteamLogin implements SteamLoginInterface
      *
      * @param $app
      */
-    public function __construct($app)
+    public function __construct(Application $app)
     {
         $this->app = $app;
         $this->request = $app->request;
