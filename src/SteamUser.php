@@ -130,7 +130,7 @@ class SteamUser
             return call_user_func_array([$this->steamId, $name], $arguments);
         }
         if (substr($name, 0, 3) === 'get') {
-            $property = lcfirst(substr($arguments[0], 3));
+            $property = lcfirst(substr($name, 3));
 
             return call_user_func_array([$this, '__get'], [$property]);
         }
