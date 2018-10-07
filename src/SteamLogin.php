@@ -6,6 +6,7 @@ use Exception;
 use GuzzleHttp\Client as GuzzleClient;
 use GuzzleHttp\Psr7\Response;
 use Illuminate\Foundation\Application;
+use Illuminate\Http\RedirectResponse;
 use Illuminate\Support\Facades\Config;
 
 class SteamLogin implements SteamLoginInterface
@@ -173,7 +174,13 @@ class SteamLogin implements SteamLoginInterface
         return redirect($this->loginUrl);
     }
 
-    public function previousPage()
+
+    /**
+     * Return the user to the page they were on before logging in
+     *
+     * @return RedirectResponse
+     */
+    public function previousPage(): RedirectResponse
     {
         return redirect($this->previousPage);
     }
