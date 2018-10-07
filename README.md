@@ -19,10 +19,10 @@ This isn't gay like the other laravel steam auths. The example assumes you are u
 ## Setup
 
 ### 1.x
-https://github.com/kanalumaddela/laravel-steam-login/wiki/1.x
+[Docs](1.x)
 
 ### 2.x
-Coming soon...
+[Docs](2.x)
 
 ## Credits
 
