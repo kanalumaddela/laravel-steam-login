@@ -7,21 +7,21 @@ use Illuminate\Http\RedirectResponse;
 interface SteamLoginInterface
 {
     /**
-     * Return the steamid being validated or not
+     * Return the steamid being validated or not.
      *
      * @return string|null
      */
     public function validate(): ?string;
 
     /**
-     * Redirect the user to steam's login page
+     * Redirect the user to steam's login page.
      *
      * @return RedirectResponse
      */
     public function redirectToSteam(): RedirectResponse;
 
     /**
-     * Return the steam login url
+     * Return the steam login url.
      *
      * @return string
      */
