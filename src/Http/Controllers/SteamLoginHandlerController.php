@@ -59,14 +59,14 @@ class SteamLoginHandlerController extends Controller
     }
 
     /**
-     * Called after the user is successfully validated.
+     * User has been successfully authenticated/validated.
      *
      * @param Request   $request
      * @param SteamUser $steamUser
      */
     public function authenticated(Request $request, SteamUser $steamUser)
     {
-        // override this thx
+        //
     }
 
     /**

@@ -11,7 +11,7 @@ use SteamID;
 class SteamUser
 {
     /**
-     * Steam Community URL using 64bit steamid.
+     * Steam Community URL using 64bit steamId.
      *
      * @var string
      */
@@ -32,9 +32,9 @@ class SteamUser
     const STEAM_PLAYER_API = 'https://api.steampowered.com/ISteamUser/GetPlayerSummaries/v0002/?key=%s&steamids=%s';
 
     /**
-     * personastates.
+     * personaStates.
      */
-    private static $personaStates = [
+    protected static $personaStates = [
         'Offline',
         'Online',
         'Busy',
@@ -45,7 +45,7 @@ class SteamUser
     ];
 
     /**
-     * Attributes of a user. e.g. steamid, profile, etc.
+     * Attributes of a user. e.g. steamId, profile, etc.
      *
      * @var \stdClass
      */
@@ -96,12 +96,12 @@ class SteamUser
     /**
      * SteamUser constructor. Extends SteamID and constructs that first.
      *
-     * @param string|int        $steamid
+     * @param string|int        $steamId
      * @param GuzzleClient|null $guzzle
      */
-    public function __construct($steamid, GuzzleClient $guzzle = null)
+    public function __construct($steamId, GuzzleClient $guzzle = null)
     {
-        $this->steamId = new SteamID($steamid);
+        $this->steamId = new SteamID($steamId);
         $this->guzzle = $guzzle ?? new GuzzleClient();
 
         $this->attributes = new \stdClass();
@@ -110,7 +110,7 @@ class SteamUser
         $this->attributes->steamId2 = $this->steamId->RenderSteam2();
         $this->attributes->steamId3 = $this->steamId->RenderSteam3();
         $this->attributes->accountId = $this->steamId->GetAccountID();
-        $this->attributes->profileUrl = sprintf(self::STEAM_PROFILE, $this->attributes->steamId3);
+        $this->attributes->accountUrl = sprintf(self::STEAM_PROFILE, $this->attributes->steamId3);
         $this->attributes->profileDataUrl = sprintf(self::STEAM_PROFILE.'/?xml=1', $this->attributes->steamId);
 
         $this->fluent = new Fluent($this->attributes);
@@ -194,26 +194,29 @@ class SteamUser
 
                 if ($data) {
                     $this->attributes->name = $data->personaname;
-                    $this->attributes->realName = !empty($data->realname) ? $data->realname : null;
-                    $this->attributes->playerState = $data->personastate != 0 ? 'Online' : 'Offline';
-                    $this->attributes->privacyState = ($data->communityvisibilitystate == 1 || $data->communityvisibilitystate == 2) ? 'Private' : 'Public';
-                    $this->attributes->stateMessage = isset(self::$personaStates[$data->personastate]) ? self::$personaStates[$data->personastate] : $data->personastate;
+                    $this->attributes->realName = isset($data->realname) ? $data->realname : null;
+                    $this->attributes->profileUrl = $data->profileurl;
+                    $this->attributes->privacyState = $data->communityvisibilitystate == 3 ? 'Public' : 'Private';
                     $this->attributes->visibilityState = $data->communityvisibilitystate;
+                    $this->attributes->isOnline = $data->personastate != 0;
+                    $this->attributes->onlineState = isset($data->gameid) ? 'In-Game' : ($data->personastate != 0 ? 'Online' : 'Offline');
+                    // todo: stateMessage
                     $this->attributes->avatarSmall = $this->attributes->avatarIcon = $data->avatar;
                     $this->attributes->avatarMedium = $data->avatarmedium;
                     $this->attributes->avatarLarge = $this->attributes->avatarFull = $this->attributes->avatar = $data->avatarfull;
                     $this->attributes->joined = isset($data->timecreated) ? $data->timecreated : null;
-                    $this->attributes->profileUrl = $data->profileurl;
                 }
                 break;
             case 'xml':
                 if ($data !== false && !isset($data->error)) {
                     $this->attributes->name = (string) $data->steamID;
-                    $this->attributes->realName = !empty($data->realName) ? $data->realName : null;
-                    $this->attributes->playerState = ucfirst($data->onlineState);
-                    $this->attributes->privacyState = ($data->privacyState == 'friendsonly' || $data->privacyState == 'private') ? 'Private' : 'Public';
-                    $this->attributes->stateMessage = (string) $data->stateMessage == 'Last Online ' ? 'Last Online: Unknown' : $data->stateMessage;
+                    $this->attributes->realName = isset($data->realName) ? $data->realName : null;
+                    $this->attributes->profileUrl = isset($data->customURL) ? 'https://steamcommunity.com/id/'.$data->customURL : $this->attributes->accountUrl;
+                    $this->attributes->privacyState = $data->privacyState == 'public' ? 'Public' : 'Private';
                     $this->attributes->visibilityState = (int) $data->visibilityState;
+                    $this->attributes->isOnline = $data->onlineState != 'offline';
+                    $this->attributes->onlineState = $data->onlineState == 'in-game' ? 'In-Game' : ucfirst($data->onlineState);
+                    // todo: stateMessage
                     $this->attributes->avatarSmall = $this->attributes->avatarIcon = (string) $data->avatarIcon;
                     $this->attributes->avatarMedium = (string) $data->avatarMedium;
                     $this->attributes->avatarLarge = $this->attributes->avatarFull = $this->attributes->avatar = (string) $data->avatarFull;
