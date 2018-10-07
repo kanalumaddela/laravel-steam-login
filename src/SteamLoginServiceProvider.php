@@ -7,13 +7,6 @@ use Illuminate\Support\ServiceProvider;
 class SteamLoginServiceProvider extends ServiceProvider
 {
     /**
-     * Indicates if loading of the provider is deferred.
-     *
-     * @var bool
-     */
-    protected $defer = false;
-
-    /**
      * Bootstrap any application services.
      *
      * @return void
