@@ -8,7 +8,7 @@ use Illuminate\Http\Request;
 use kanalumaddela\LaravelSteamLogin\SteamLogin;
 use kanalumaddela\LaravelSteamLogin\SteamUser;
 
-class SteamLoginController extends Controller
+class SteamLoginHandlerController extends Controller
 {
     /**
      * SteamLogin instance.
@@ -59,6 +59,17 @@ class SteamLoginController extends Controller
     }
 
     /**
+     * Called after the user is successfully validated.
+     *
+     * @param Request   $request
+     * @param SteamUser $steamUser
+     */
+    public function authenticated(Request $request, SteamUser $steamUser)
+    {
+        // override this thx
+    }
+
+    /**
      * Throw SteamLogin exception.
      *
      * @param Exception $exception
@@ -68,16 +79,5 @@ class SteamLoginController extends Controller
     public function error(Exception $exception)
     {
         throw $exception;
-    }
-
-    /**
-     * Called after the user is successfully validated.
-     *
-     * @param Request   $request
-     * @param SteamUser $steamUser
-     */
-    public function authenticated(Request $request, SteamUser $steamUser)
-    {
-        // override this thx
     }
 }

@@ -3,6 +3,7 @@
 namespace kanalumaddela\LaravelSteamLogin;
 
 use GuzzleHttp\Client as GuzzleClient;
+use GuzzleHttp\Psr7\Response;
 use Illuminate\Support\Facades\Config;
 use Illuminate\Support\Fluent;
 use SteamID;
@@ -29,6 +30,19 @@ class SteamUser
      * @var string
      */
     const STEAM_PLAYER_API = 'https://api.steampowered.com/ISteamUser/GetPlayerSummaries/v0002/?key=%s&steamids=%s';
+
+    /**
+     * personastates.
+     */
+    private static $personaStates = [
+        'Offline',
+        'Online',
+        'Busy',
+        'Away',
+        'Snooze',
+        'Looking to trade',
+        'Looking to play',
+    ];
 
     /**
      * Attributes of a user. e.g. steamid, profile, etc.
@@ -73,22 +87,16 @@ class SteamUser
     protected $guzzle;
 
     /**
-     * personastates.
+     * Guzzle response.
+     *
+     * @var \GuzzleHttp\Psr7\Response
      */
-    private static $personaStates = [
-        'Offline',
-        'Online',
-        'Busy',
-        'Away',
-        'Snooze',
-        'Looking to trade',
-        'Looking to play',
-    ];
+    protected $response;
 
     /**
      * SteamUser constructor. Extends SteamID and constructs that first.
      *
-     * @param string            $steamid
+     * @param string|int        $steamid
      * @param GuzzleClient|null $guzzle
      */
     public function __construct($steamid, GuzzleClient $guzzle = null)
@@ -98,21 +106,21 @@ class SteamUser
 
         $this->attributes = new \stdClass();
 
-        $this->attributes->steamid = $this->steamId->ConvertToUInt64();
-        $this->attributes->steamid2 = $this->steamId->RenderSteam2();
-        $this->attributes->steamid3 = $this->steamId->RenderSteam3();
+        $this->attributes->steamId = $this->steamId->ConvertToUInt64();
+        $this->attributes->steamId2 = $this->steamId->RenderSteam2();
+        $this->attributes->steamId3 = $this->steamId->RenderSteam3();
         $this->attributes->accountId = $this->steamId->GetAccountID();
-        $this->attributes->profileUrl = sprintf(self::STEAM_PROFILE, $this->attributes->steamid3);
-        $this->attributes->profileDataUrl = sprintf(self::STEAM_PROFILE.'/?xml=1', $this->attributes->steamid);
+        $this->attributes->profileUrl = sprintf(self::STEAM_PROFILE, $this->attributes->steamId3);
+        $this->attributes->profileDataUrl = sprintf(self::STEAM_PROFILE.'/?xml=1', $this->attributes->steamId);
 
         $this->fluent = new Fluent($this->attributes);
 
         $this->method = Config::get('steam-login.method', 'xml') == 'api' ? 'api' : 'xml';
-        $this->profileDataUrl = $this->method == 'xml' ? $this->attributes->profileDataUrl : sprintf(self::STEAM_PLAYER_API, Config::get('steam-login.api_key'), $this->attributes->steamid);
+        $this->profileDataUrl = $this->method == 'xml' ? $this->attributes->profileDataUrl : sprintf(self::STEAM_PLAYER_API, Config::get('steam-login.api_key'), $this->attributes->steamId);
     }
 
     /**
-     * magic methiod __call.
+     * magic method __call.
      *
      * @param $name
      * @param $arguments
@@ -155,7 +163,7 @@ class SteamUser
      *
      * @return string
      */
-    public function __toString()
+    public function __toString(): string
     {
         return $this->fluent->toJson();
     }
@@ -165,7 +173,7 @@ class SteamUser
      *
      * @return $this
      */
-    public function getUserInfo()
+    public function getUserInfo(): SteamUser
     {
         $this->userInfo();
 
@@ -177,8 +185,8 @@ class SteamUser
      */
     private function userInfo()
     {
-        $response = $this->guzzle->get($this->profileDataUrl, ['connect_timeout' => Config::get('steam-login.timeout')]);
-        $data = $this->method == 'xml' ? simplexml_load_string($response->getBody(), 'SimpleXMLElement', LIBXML_NOCDATA) : json_decode($response->getBody());
+        $this->response = $this->guzzle->get($this->profileDataUrl, ['connect_timeout' => Config::get('steam-login.timeout')]);
+        $data = $this->method == 'xml' ? simplexml_load_string($this->response->getBody(), 'SimpleXMLElement', LIBXML_NOCDATA) : json_decode($this->response->getBody());
 
         switch ($this->method) {
             case 'api':
@@ -191,10 +199,11 @@ class SteamUser
                     $this->attributes->privacyState = ($data->communityvisibilitystate == 1 || $data->communityvisibilitystate == 2) ? 'Private' : 'Public';
                     $this->attributes->stateMessage = isset(self::$personaStates[$data->personastate]) ? self::$personaStates[$data->personastate] : $data->personastate;
                     $this->attributes->visibilityState = $data->communityvisibilitystate;
-                    $this->attributes->avatarSmall = $data->avatar;
+                    $this->attributes->avatarSmall = $this->attributes->avatarIcon = $data->avatar;
                     $this->attributes->avatarMedium = $data->avatarmedium;
-                    $this->attributes->avatarLarge = $data->avatarfull;
+                    $this->attributes->avatarLarge = $this->attributes->avatarFull = $this->attributes->avatar = $data->avatarfull;
                     $this->attributes->joined = isset($data->timecreated) ? $data->timecreated : null;
+                    $this->attributes->profileUrl = $data->profileurl;
                 }
                 break;
             case 'xml':
@@ -205,9 +214,9 @@ class SteamUser
                     $this->attributes->privacyState = ($data->privacyState == 'friendsonly' || $data->privacyState == 'private') ? 'Private' : 'Public';
                     $this->attributes->stateMessage = (string) $data->stateMessage == 'Last Online ' ? 'Last Online: Unknown' : $data->stateMessage;
                     $this->attributes->visibilityState = (int) $data->visibilityState;
-                    $this->attributes->avatarSmall = (string) $data->avatarIcon;
+                    $this->attributes->avatarSmall = $this->attributes->avatarIcon = (string) $data->avatarIcon;
                     $this->attributes->avatarMedium = (string) $data->avatarMedium;
-                    $this->attributes->avatarLarge = (string) $data->avatarFull;
+                    $this->attributes->avatarLarge = $this->attributes->avatarFull = $this->attributes->avatar = (string) $data->avatarFull;
                     $this->attributes->joined = isset($data->memberSince) ? strtotime($data->memberSince) : null;
                 }
                 break;
@@ -216,5 +225,15 @@ class SteamUser
         }
 
         $this->fluent = new Fluent($this->attributes);
+    }
+
+    /**
+     * Return Guzzle response of POSTing to Steam's OpenID.
+     *
+     * @return Response
+     */
+    public function getResponse(): Response
+    {
+        return $this->response;
     }
 }

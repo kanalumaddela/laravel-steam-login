@@ -33,13 +33,6 @@ class SteamLogin implements SteamLoginInterface
     public $player;
 
     /**
-     * Login URL.
-     *
-     * @var string
-     */
-    private $loginUrl;
-
-    /**
      * @var string
      */
     protected $previousPage;
@@ -94,6 +87,13 @@ class SteamLogin implements SteamLoginInterface
     protected $https;
 
     /**
+     * Login URL.
+     *
+     * @var string
+     */
+    private $loginUrl;
+
+    /**
      * SteamLogin constructor.
      *
      * @param $app
@@ -121,37 +121,20 @@ class SteamLogin implements SteamLoginInterface
     }
 
     /**
-     * Return player object and optionally choose to retrieve profile info.
+     * Check if query parameters are valid post steam login.
      *
-     * @param bool $info
-     *
-     * @throws Exception
-     *
-     * @return SteamUser
+     * @return bool
      */
-    public function getPlayer($info = false): SteamUser
+    protected function validRequest()
     {
-        return $info ? $this->player->getUserInfo() : $this->player;
-    }
+        $params = [
+            'openid_assoc_handle',
+            'openid_claimed_id',
+            'openid_sig',
+            'openid_signed',
+        ];
 
-    /**
-     * Return Guzzle response of posting to Steam's OpenID.
-     *
-     * @return Response
-     */
-    public function getResponse(): Response
-    {
-        return $this->response;
-    }
-
-    /**
-     * Return login URL.
-     *
-     * @return string
-     */
-    public function getLoginURL(): string
-    {
-        return $this->loginUrl;
+        return $this->request->filled($params);
     }
 
     /**
@@ -159,15 +142,42 @@ class SteamLogin implements SteamLoginInterface
      *
      * @param $return
      */
-    public function setReturnUrl($return)
+    public function setReturnUrl(string $return)
     {
         $this->loginUrl = $this->createLoginURL($return);
     }
 
     /**
-     * Redirect to steam login page.
+     * Build the steam openid login URL.
      *
-     * @return \Illuminate\Http\RedirectResponse
+     * @param null $return
+     *
+     * @return string
+     */
+    public function createLoginUrl($return = null): string
+    {
+        $params = [
+            'openid.ns'         => self::OPENID_SPECS,
+            'openid.mode'       => 'checkid_setup',
+            'openid.return_to'  => (!empty($return) ? $return : $this->authRoute),
+            'openid.realm'      => ($this->https ? 'https' : 'http').'://'.$this->request->getHttpHost(),
+            'openid.identity'   => self::OPENID_SPECS.'/identifier_select',
+            'openid.claimed_id' => self::OPENID_SPECS.'/identifier_select',
+        ];
+
+        return self::OPENID_STEAM.'?'.http_build_query($params);
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function getLoginURL(): string
+    {
+        return $this->loginUrl;
+    }
+
+    /**
+     * {@inheritdoc}
      */
     public function redirectToSteam(): RedirectResponse
     {
@@ -185,15 +195,27 @@ class SteamLogin implements SteamLoginInterface
     }
 
     /**
-     * Returns Steam Login button with link.
+     * Return player object and optionally choose to retrieve profile info.
      *
-     * @param string $type
+     * @param bool $info
      *
-     * @return string
+     * @throws Exception
+     *
+     * @return SteamUser
      */
-    public function loginButton($type = 'small'): string
+    public function getPlayer(bool $info = false): SteamUser
     {
-        return sprintf('<a href="%s"><img src="%s" /></a>', $this->loginUrl, self::button($type));
+        return $info ? $this->player->getUserInfo() : $this->player;
+    }
+
+    /**
+     * Return Guzzle response of POSTing to Steam's OpenID.
+     *
+     * @return Response
+     */
+    public function getResponse(): Response
+    {
+        return $this->response;
     }
 
     /**
@@ -219,13 +241,9 @@ class SteamLogin implements SteamLoginInterface
     }
 
     /**
-     * Validate Steam Login.
-     *
-     * @throws Exception
-     *
-     * @return string|int|null
+     * {@inheritdoc}
      */
-    public function validate()
+    public function validate(): ?string
     {
         $params = [
             'openid.assoc_handle' => $this->request->input('openid_assoc_handle'),
@@ -257,52 +275,26 @@ class SteamLogin implements SteamLoginInterface
     }
 
     /**
+     * Returns Steam Login button with link.
+     *
+     * @param string $type
+     *
+     * @return string
+     */
+    public function loginButton(string $type = 'small'): string
+    {
+        return sprintf('<a href="%s"><img src="%s" /></a>', $this->loginUrl, self::button($type));
+    }
+
+    /**
      * Return the URL of Steam Login buttons.
      *
      * @param string $type
      *
      * @return string
      */
-    public static function button($type = 'small'): string
+    public static function button(string $type = 'small'): string
     {
         return 'https://steamcommunity-a.akamaihd.net/public/images/signinthroughsteam/sits_0'.($type == 'small' ? 1 : 2).'.png';
-    }
-
-    /**
-     * Build the steam openid login URL.
-     *
-     * @param null $return
-     *
-     * @return string
-     */
-    private function createLoginUrl($return = null): string
-    {
-        $params = [
-            'openid.ns'         => self::OPENID_SPECS,
-            'openid.mode'       => 'checkid_setup',
-            'openid.return_to'  => (!empty($return) ? $return : $this->authRoute),
-            'openid.realm'      => ($this->https ? 'https' : 'http').'://'.$this->request->getHttpHost(),
-            'openid.identity'   => self::OPENID_SPECS.'/identifier_select',
-            'openid.claimed_id' => self::OPENID_SPECS.'/identifier_select',
-        ];
-
-        return self::OPENID_STEAM.'?'.http_build_query($params);
-    }
-
-    /**
-     * Check if query paramters are valid post steam login.
-     *
-     * @return bool
-     */
-    private function validRequest()
-    {
-        $params = [
-            'openid_assoc_handle',
-            'openid_claimed_id',
-            'openid_sig',
-            'openid_signed',
-        ];
-
-        return $this->request->filled($params);
     }
 }
