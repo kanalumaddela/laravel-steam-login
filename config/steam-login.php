@@ -17,17 +17,10 @@ return [
     'timeout' => env('STEAM_LOGIN_TIMEOUT', 5),
 
     /*
-     * Route override options
+     * Route names
      */
     'routes' => [
-        'enabled' => env('STEAM_LOGIN_ROUTE_ENABLED', true),
-        'login'   => [
-            'path' => env('STEAM_LOGIN_ROUTE_PATH', 'login/steam'),
-            'name' => env('STEAM_LOGIN_ROUTE_NAME', 'login.steam'),
-        ],
-        'auth' => [
-            'path' => env('STEAM_LOGIN_AUTH_PATH', 'auth/steam'),
-            'name' => env('STEAM_LOGIN_AUTH_NAME', 'auth.steam'),
-        ],
+        'login'   => env('STEAM_LOGIN_ROUTE_NAME', 'login.steam'),
+        'auth'   => env('STEAM_AUTH_ROUTE_NAME', 'auth.steam'),
     ],
 ];

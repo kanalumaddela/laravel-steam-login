@@ -42,11 +42,13 @@ class SteamLoginController extends Controller
 
     /**
      * Validate after returning from steam.
+     *
+     * @throws Exception
      */
     public function auth()
     {
         try {
-            if ($this->steam->valid()) {
+            if ($this->steam->validated()) {
                 $this->authenticated($this->request, $this->steam->getPlayer());
             }
         } catch (Exception $e) {
@@ -76,6 +78,6 @@ class SteamLoginController extends Controller
      */
     public function authenticated(Request $request, SteamUser $steamUser)
     {
-        // todo
+        // override this thx
     }
 }
