@@ -79,7 +79,7 @@ class SteamLogin implements SteamLoginInterface
     protected $guzzle;
 
     /**
-     * Guzzle response
+     * Guzzle response.
      *
      * @var \GuzzleHttp\Psr7\Response
      */
@@ -110,7 +110,7 @@ class SteamLogin implements SteamLoginInterface
         $this->loginRoute = route(Config::get('steam-login.routes.login'));
         $this->authRoute = route(Config::get('steam-login.routes.auth'));
 
-        $this->previousPage =  $this->validRequest() && $this->request->has('redirect') ? $this->request->get('redirect') : $previousPage != $this->loginRoute && $previousPage != $this->authRoute ? $previousPage : url('/');
+        $this->previousPage = $this->validRequest() && $this->request->has('redirect') ? $this->request->get('redirect') : $previousPage != $this->loginRoute && $previousPage != $this->authRoute ? $previousPage : url('/');
 
         if (!filter_var($this->previousPage, FILTER_VALIDATE_URL)) {
             throw new Exception('previousPage is not valid url');
@@ -134,7 +134,7 @@ class SteamLogin implements SteamLoginInterface
     }
 
     /**
-     * Return Guzzle response of posting to Steam's OpenID
+     * Return Guzzle response of posting to Steam's OpenID.
      *
      * @return Response
      */
