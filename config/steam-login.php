@@ -21,6 +21,6 @@ return [
      */
     'routes' => [
         'login'   => env('STEAM_LOGIN_ROUTE_NAME', 'login.steam'),
-        'auth'   => env('STEAM_AUTH_ROUTE_NAME', 'auth.steam'),
+        'auth'    => env('STEAM_AUTH_ROUTE_NAME', 'auth.steam'),
     ],
 ];
