@@ -173,7 +173,7 @@ class SteamUser
      *
      * @return $this
      */
-    public function getUserInfo(): SteamUser
+    public function getUserInfo(): self
     {
         $this->userInfo();
 
