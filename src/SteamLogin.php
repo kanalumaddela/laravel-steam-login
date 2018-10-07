@@ -2,82 +2,68 @@
 
 namespace kanalumaddela\LaravelSteamLogin;
 
+use Exception;
 use GuzzleHttp\Client as GuzzleClient;
 use GuzzleHttp\Psr7\Response;
+use Illuminate\Foundation\Application;
+use Illuminate\Http\RedirectResponse;
 use Illuminate\Support\Facades\Config;
-use Illuminate\Support\Fluent;
-use SteamID;
 
-class SteamUser
+class SteamLogin implements SteamLoginInterface
 {
     /**
-     * Steam Community URL using 64bit steamId.
+     * Steam OpenID URL.
      *
      * @var string
      */
-    const STEAM_PROFILE = 'https://steamcommunity.com/profiles/%s';
+    const OPENID_STEAM = 'https://steamcommunity.com/openid/login';
 
     /**
-     * Steam Community URL using custom id.
+     * OpenID Specs.
      *
      * @var string
      */
-    const STEAM_PROFILE_ID = 'https://steamcommunity.com/id/%s';
+    const OPENID_SPECS = 'http://specs.openid.net/auth/2.0';
 
     /**
-     * Steam API GetPlayerSummaries URL.
+     * SteamUser instance of player details.
+     *
+     * @var SteamUser
+     */
+    public $player;
+
+    /**
+     * @var string
+     */
+    protected $previousPage;
+
+    /**
+     * Login route to redirect to steam.
      *
      * @var string
      */
-    const STEAM_PLAYER_API = 'https://api.steampowered.com/ISteamUser/GetPlayerSummaries/v0002/?key=%s&steamids=%s';
+    protected $loginRoute;
 
     /**
-     * personaStates.
-     */
-    protected static $personaStates = [
-        'Offline',
-        'Online',
-        'Busy',
-        'Away',
-        'Snooze',
-        'Looking to trade',
-        'Looking to play',
-    ];
-
-    /**
-     * Attributes of a user. e.g. steamId, profile, etc.
-     *
-     * @var \stdClass
-     */
-    public $attributes;
-
-    /**
-     * Fluent instance of user data.
-     *
-     * @var \Illuminate\Support\Fluent
-     */
-    public $fluent;
-
-    /**
-     * Profile data retrieval method to use.
+     * Auth handle route after returning from steam.
      *
      * @var string
      */
-    protected $method = 'xml';
+    protected $authRoute;
 
     /**
-     * URL to use when retrieving a user's profile.
+     * Laravel Container/Application.
      *
-     * @var string
+     * @var \Illuminate\Foundation\Application
      */
-    protected $profileDataUrl;
+    protected $app;
 
     /**
-     * Guzzle instance.
+     * Laravel Request instance.
      *
-     * @var \SteamID
+     * @var \Illuminate\Http\Request
      */
-    protected $steamId;
+    protected $request;
 
     /**
      * Guzzle instance.
@@ -94,140 +80,132 @@ class SteamUser
     protected $response;
 
     /**
-     * SteamUser constructor. Extends SteamID and constructs that first.
+     * Defines if app is HTTPS.
      *
-     * @param string|int        $steamId
-     * @param GuzzleClient|null $guzzle
+     * @var bool
      */
-    public function __construct($steamId, GuzzleClient $guzzle = null)
+    protected $https;
+
+    /**
+     * Login URL.
+     *
+     * @var string
+     */
+    private $loginUrl;
+
+    /**
+     * SteamLogin constructor.
+     *
+     * @param $app
+     *
+     * @throws Exception
+     */
+    public function __construct(Application $app)
     {
-        $this->steamId = new SteamID($steamId);
-        $this->guzzle = $guzzle ?? new GuzzleClient();
+        $this->app = $app;
+        $this->request = $app->request;
+        $this->guzzle = new GuzzleClient();
+        $this->https = $this->request->server('HTTP_X_FORWARDED_PROTO') == 'https' ?? isset($_SERVER['https']);
 
-        $this->attributes = new \stdClass();
+        $previousPage = url()->previous();
+        $this->loginRoute = route(Config::get('steam-login.routes.login'));
+        $this->authRoute = route(Config::get('steam-login.routes.auth'));
 
-        $this->attributes->steamId = $this->steamId->ConvertToUInt64();
-        $this->attributes->steamId2 = $this->steamId->RenderSteam2();
-        $this->attributes->steamId3 = $this->steamId->RenderSteam3();
-        $this->attributes->accountId = $this->steamId->GetAccountID();
-        $this->attributes->accountUrl = sprintf(self::STEAM_PROFILE, $this->attributes->steamId3);
-        $this->attributes->profileDataUrl = sprintf(self::STEAM_PROFILE.'/?xml=1', $this->attributes->steamId);
+        $this->previousPage = $this->validRequest() && $this->request->has('redirect') ? $this->request->query('redirect') : ($previousPage != $this->loginRoute && $previousPage != $this->authRoute ? $previousPage : url('/'));
 
-        $this->fluent = new Fluent($this->attributes);
+        if (!filter_var($this->previousPage, FILTER_VALIDATE_URL)) {
+            throw new Exception('previousPage is not valid url');
+        }
 
-        $this->method = Config::get('steam-login.method', 'xml') === 'api' ? 'api' : 'xml';
-        $this->profileDataUrl = $this->method === 'xml' ? $this->attributes->profileDataUrl : sprintf(self::STEAM_PLAYER_API, Config::get('steam-login.api_key'), $this->attributes->steamId);
+        $this->setReturnUrl($this->authRoute.'?redirect='.$previousPage);
     }
 
     /**
-     * magic method __call.
+     * Check if query parameters are valid post steam login.
      *
-     * @param $name
-     * @param $arguments
-     *
-     * @throws \Exception
-     *
-     * @return mixed
+     * @return bool
      */
-    public function __call($name, $arguments)
+    protected function validRequest()
     {
-        if (method_exists($this->fluent, $name)) {
-            return call_user_func_array([$this->fluent, $name], $arguments);
-        }
-        if (method_exists($this->steamId, $name)) {
-            return call_user_func_array([$this->steamId, $name], $arguments);
-        }
-        if (substr($name, 0, 3) === 'get') {
-            $property = lcfirst(substr($name, 3));
+        $params = [
+            'openid_assoc_handle',
+            'openid_claimed_id',
+            'openid_sig',
+            'openid_signed',
+        ];
 
-            return call_user_func_array([$this, '__get'], [$property]);
-        }
-
-        throw new \Exception('Unknown method '.$name);
+        return $this->request->filled($params);
     }
 
     /**
-     * magic method __get.
+     * Generate openid login URL with specified return.
      *
-     * @param $name
-     *
-     * @return mixed
+     * @param $return
      */
-    public function __get($name)
+    public function setReturnUrl(string $return)
     {
-        return $this->fluent->__get($name);
+        $this->loginUrl = $this->createLoginURL($return);
     }
 
     /**
-     * magic method __toString using Fluent toJson().
+     * Build the steam openid login URL.
+     *
+     * @param string|null $return
      *
      * @return string
      */
-    public function __toString(): string
+    public function createLoginUrl(?string $return = null): string
     {
-        return $this->fluent->toJson();
+        $params = [
+            'openid.ns'         => self::OPENID_SPECS,
+            'openid.mode'       => 'checkid_setup',
+            'openid.return_to'  => (!empty($return) ? $return : $this->authRoute),
+            'openid.realm'      => ($this->https ? 'https' : 'http').'://'.$this->request->getHttpHost(),
+            'openid.identity'   => self::OPENID_SPECS.'/identifier_select',
+            'openid.claimed_id' => self::OPENID_SPECS.'/identifier_select',
+        ];
+
+        return self::OPENID_STEAM.'?'.http_build_query($params);
     }
 
     /**
-     * Retrieve a user's steam info set its attributes.
+     * {@inheritdoc}
+     */
+    public function getLoginURL(): string
+    {
+        return $this->loginUrl;
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function redirectToSteam(): RedirectResponse
+    {
+        return redirect($this->loginUrl);
+    }
+
+    /**
+     * Return the user to the page they were on before logging in.
      *
-     * @return $this
+     * @return RedirectResponse
      */
-    public function getUserInfo(): self
+    public function previousPage(): RedirectResponse
     {
-        $this->userInfo();
-
-        return $this;
+        return redirect($this->previousPage);
     }
 
     /**
-     * Retrieve a user's profile info from Steam via API or XML data.
+     * Return player object and optionally choose to retrieve profile info.
+     *
+     * @param bool $info
+     *
+     * @throws Exception
+     *
+     * @return SteamUser
      */
-    private function userInfo()
+    public function getPlayer(bool $info = false): SteamUser
     {
-        $this->response = $this->guzzle->get($this->profileDataUrl, ['connect_timeout' => Config::get('steam-login.timeout')]);
-        $data = $this->method === 'xml' ? simplexml_load_string($this->response->getBody(), 'SimpleXMLElement', LIBXML_NOCDATA) : json_decode($this->response->getBody());
-
-        switch ($this->method) {
-            case 'api':
-                $data = isset($data->response->players[0]) ? $data->response->players[0] : null;
-
-                if ($data) {
-                    $this->attributes->name = $data->personaname;
-                    $this->attributes->realName = isset($data->realname) ? $data->realname : null;
-                    $this->attributes->profileUrl = $data->profileurl;
-                    $this->attributes->privacyState = $data->communityvisibilitystate === 3 ? 'Public' : 'Private';
-                    $this->attributes->visibilityState = $data->communityvisibilitystate;
-                    $this->attributes->isOnline = $data->personastate != 0;
-                    $this->attributes->onlineState = isset($data->gameid) ? 'In-Game' : ($data->personastate != 0 ? 'Online' : 'Offline');
-                    // todo: stateMessage
-                    $this->attributes->avatarSmall = $this->attributes->avatarIcon = $data->avatar;
-                    $this->attributes->avatarMedium = $data->avatarmedium;
-                    $this->attributes->avatarLarge = $this->attributes->avatarFull = $this->attributes->avatar = $data->avatarfull;
-                    $this->attributes->joined = isset($data->timecreated) ? $data->timecreated : null;
-                }
-                break;
-            case 'xml':
-                if ($data !== false && !isset($data->error)) {
-                    $this->attributes->name = (string) $data->steamID;
-                    $this->attributes->realName = isset($data->realName) ? $data->realName : null;
-                    $this->attributes->profileUrl = isset($data->customURL) ? 'https://steamcommunity.com/id/'.$data->customURL : $this->attributes->accountUrl;
-                    $this->attributes->privacyState = $data->privacyState === 'public' ? 'Public' : 'Private';
-                    $this->attributes->visibilityState = (int) $data->visibilityState;
-                    $this->attributes->isOnline = $data->onlineState != 'offline';
-                    $this->attributes->onlineState = $data->onlineState === 'in-game' ? 'In-Game' : ucfirst($data->onlineState);
-                    // todo: stateMessage
-                    $this->attributes->avatarSmall = $this->attributes->avatarIcon = (string) $data->avatarIcon;
-                    $this->attributes->avatarMedium = (string) $data->avatarMedium;
-                    $this->attributes->avatarLarge = $this->attributes->avatarFull = $this->attributes->avatar = (string) $data->avatarFull;
-                    $this->attributes->joined = isset($data->memberSince) ? strtotime($data->memberSince) : null;
-                }
-                break;
-            default:
-                break;
-        }
-
-        $this->fluent = new Fluent($this->attributes);
+        return $info ? $this->player->getUserInfo() : $this->player;
     }
 
     /**
@@ -238,5 +216,85 @@ class SteamUser
     public function getResponse(): Response
     {
         return $this->response;
+    }
+
+    /**
+     * Check if login is valid.
+     *
+     * @throws Exception
+     *
+     * @return bool
+     */
+    public function validated(): bool
+    {
+        if (!$this->validRequest()) {
+            return false;
+        }
+
+        $steamid = $this->validate();
+
+        if ($validated = !empty($steamid)) {
+            $this->player = new SteamUser($steamid);
+        }
+
+        return $validated;
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function validate(): ?string
+    {
+        $params = [
+            'openid.assoc_handle' => $this->request->input('openid_assoc_handle'),
+            'openid.signed'       => $this->request->input('openid_signed'),
+            'openid.sig'          => $this->request->input('openid_sig'),
+            'openid.ns'           => self::OPENID_SPECS,
+        ];
+
+        $signed = explode(',', $this->request->input('openid_signed'));
+
+        foreach ($signed as $item) {
+            $params['openid.'.$item] = $this->request->input('openid_'.str_replace('.', '_', $item));
+        }
+
+        $params['openid.mode'] = 'check_authentication';
+
+        $this->response = $this->guzzle->post(self::OPENID_STEAM, [
+            'connect_timeout' => Config::get('steam-login.timeout'),
+            'form_params'     => $params,
+        ]);
+
+        $result = $this->response->getBody();
+
+        preg_match('#^https?://steamcommunity.com/openid/id/([0-9]{17,25})#', $this->request->input('openid_claimed_id'), $matches);
+        $steamid = is_numeric($matches[1]) ? $matches[1] : 0;
+        $steamid = preg_match("#is_valid\s*:\s*true#i", $result) == 1 ? $steamid : null;
+
+        return $steamid;
+    }
+
+    /**
+     * Returns Steam Login button with link.
+     *
+     * @param string $type
+     *
+     * @return string
+     */
+    public function loginButton(string $type = 'small'): string
+    {
+        return sprintf('<a href="%s"><img src="%s" /></a>', $this->loginUrl, self::button($type));
+    }
+
+    /**
+     * Return the URL of Steam Login buttons.
+     *
+     * @param string $type
+     *
+     * @return string
+     */
+    public static function button(string $type = 'small'): string
+    {
+        return 'https://steamcommunity-a.akamaihd.net/public/images/signinthroughsteam/sits_0'.($type == 'small' ? 1 : 2).'.png';
     }
 }
