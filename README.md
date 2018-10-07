@@ -8,21 +8,17 @@
 [![GitHub issues](https://img.shields.io/github/issues/kanalumaddela/laravel-steam-login.svg?style=flat-square)](https://github.com/kanalumaddela/laravel-steam-login/issues)
 [![GitHub license](https://img.shields.io/github/license/kanalumaddela/laravel-steam-login.svg?style=flat-square)](https://github.com/kanalumaddela/laravel-steam-login/blob/master/LICENSE)
 
-This isn't gay like the other laravel steam auths. The example assumes you are using Laravel's default `User` model along with the migration for its table. If you want otherwise, read Laravel docs.
+Make sure you have made/performed your migrations along with updating your `User` model if you plan to follow the examples. I suggest doing whatever works best for you, but certain suggestions should be followed.
 
-## Requirements
+## 1.x
+- [Docs](https://github.com/kanalumaddela/laravel-steam-login/wiki/1.x)
+- PHP 7.0+
+- Laravel 5.5+
 
-- PHP 7 +
-- User tables setup for steam auth (e.g. `steamid` column or a separate table referencing the `users` table)
-- A basic understanding of Laravel (& PHP obvs)
-
-## Setup
-
-### 1.x
-[Docs](wiki/1.x)
-
-### 2.x
-[Docs](wiki/2.x)
+## 2.x
+- [Docs](https://github.com/kanalumaddela/laravel-steam-login/wiki/2.x)
+- PHP 7.1+
+- Laravel 5.6+
 
 ## Credits
 
