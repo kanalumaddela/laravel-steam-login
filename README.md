@@ -19,10 +19,10 @@ This isn't gay like the other laravel steam auths. The example assumes you are u
 ## Setup
 
 ### 1.x
-[Docs](1.x)
+[Docs](wiki/1.x)
 
 ### 2.x
-[Docs](2.x)
+[Docs](wiki/2.x)
 
 ## Credits
 
