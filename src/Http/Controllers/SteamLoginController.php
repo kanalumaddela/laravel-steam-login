@@ -2,9 +2,9 @@
 
 namespace kanalumaddela\LaravelSteamLogin\Http\Controllers;
 
+use App\Http\Controllers\Controller;
 use Exception;
 use Illuminate\Http\Request;
-use App\Http\Controllers\Controller;
 use kanalumaddela\LaravelSteamLogin\SteamLogin;
 use kanalumaddela\LaravelSteamLogin\SteamUser;
 
