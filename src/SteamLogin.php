@@ -174,9 +174,8 @@ class SteamLogin implements SteamLoginInterface
         return redirect($this->loginUrl);
     }
 
-
     /**
-     * Return the user to the page they were on before logging in
+     * Return the user to the page they were on before logging in.
      *
      * @return RedirectResponse
      */
