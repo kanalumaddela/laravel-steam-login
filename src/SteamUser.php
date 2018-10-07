@@ -115,8 +115,8 @@ class SteamUser
 
         $this->fluent = new Fluent($this->attributes);
 
-        $this->method = Config::get('steam-login.method', 'xml') == 'api' ? 'api' : 'xml';
-        $this->profileDataUrl = $this->method == 'xml' ? $this->attributes->profileDataUrl : sprintf(self::STEAM_PLAYER_API, Config::get('steam-login.api_key'), $this->attributes->steamId);
+        $this->method = Config::get('steam-login.method', 'xml') === 'api' ? 'api' : 'xml';
+        $this->profileDataUrl = $this->method === 'xml' ? $this->attributes->profileDataUrl : sprintf(self::STEAM_PLAYER_API, Config::get('steam-login.api_key'), $this->attributes->steamId);
     }
 
     /**
@@ -186,7 +186,7 @@ class SteamUser
     private function userInfo()
     {
         $this->response = $this->guzzle->get($this->profileDataUrl, ['connect_timeout' => Config::get('steam-login.timeout')]);
-        $data = $this->method == 'xml' ? simplexml_load_string($this->response->getBody(), 'SimpleXMLElement', LIBXML_NOCDATA) : json_decode($this->response->getBody());
+        $data = $this->method === 'xml' ? simplexml_load_string($this->response->getBody(), 'SimpleXMLElement', LIBXML_NOCDATA) : json_decode($this->response->getBody());
 
         switch ($this->method) {
             case 'api':
@@ -196,7 +196,7 @@ class SteamUser
                     $this->attributes->name = $data->personaname;
                     $this->attributes->realName = isset($data->realname) ? $data->realname : null;
                     $this->attributes->profileUrl = $data->profileurl;
-                    $this->attributes->privacyState = $data->communityvisibilitystate == 3 ? 'Public' : 'Private';
+                    $this->attributes->privacyState = $data->communityvisibilitystate === 3 ? 'Public' : 'Private';
                     $this->attributes->visibilityState = $data->communityvisibilitystate;
                     $this->attributes->isOnline = $data->personastate != 0;
                     $this->attributes->onlineState = isset($data->gameid) ? 'In-Game' : ($data->personastate != 0 ? 'Online' : 'Offline');
@@ -212,10 +212,10 @@ class SteamUser
                     $this->attributes->name = (string) $data->steamID;
                     $this->attributes->realName = isset($data->realName) ? $data->realName : null;
                     $this->attributes->profileUrl = isset($data->customURL) ? 'https://steamcommunity.com/id/'.$data->customURL : $this->attributes->accountUrl;
-                    $this->attributes->privacyState = $data->privacyState == 'public' ? 'Public' : 'Private';
+                    $this->attributes->privacyState = $data->privacyState === 'public' ? 'Public' : 'Private';
                     $this->attributes->visibilityState = (int) $data->visibilityState;
                     $this->attributes->isOnline = $data->onlineState != 'offline';
-                    $this->attributes->onlineState = $data->onlineState == 'in-game' ? 'In-Game' : ucfirst($data->onlineState);
+                    $this->attributes->onlineState = $data->onlineState === 'in-game' ? 'In-Game' : ucfirst($data->onlineState);
                     // todo: stateMessage
                     $this->attributes->avatarSmall = $this->attributes->avatarIcon = (string) $data->avatarIcon;
                     $this->attributes->avatarMedium = (string) $data->avatarMedium;

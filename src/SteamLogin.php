@@ -105,7 +105,7 @@ class SteamLogin implements SteamLoginInterface
         $this->app = $app;
         $this->request = $app->request;
         $this->guzzle = new GuzzleClient();
-        $this->https = $this->request->server('HTTP_X_FORWARDED_PROTO') == 'https' ?? isset($_SERVER['https']);
+        $this->https = $this->request->server('HTTP_X_FORWARDED_PROTO') === 'https' ?? isset($_SERVER['https']);
 
         $previousPage = url()->previous();
         $this->loginRoute = route(Config::get('steam-login.routes.login'));
@@ -150,11 +150,11 @@ class SteamLogin implements SteamLoginInterface
     /**
      * Build the steam openid login URL.
      *
-     * @param null $return
+     * @param string|null $return
      *
      * @return string
      */
-    public function createLoginUrl($return = null): string
+    public function createLoginUrl(?string $return = null): string
     {
         $params = [
             'openid.ns'         => self::OPENID_SPECS,
@@ -269,7 +269,7 @@ class SteamLogin implements SteamLoginInterface
 
         preg_match('#^https?://steamcommunity.com/openid/id/([0-9]{17,25})#', $this->request->input('openid_claimed_id'), $matches);
         $steamid = is_numeric($matches[1]) ? $matches[1] : 0;
-        $steamid = preg_match("#is_valid\s*:\s*true#i", $result) == 1 ? $steamid : null;
+        $steamid = preg_match("#is_valid\s*:\s*true#i", $result) === 1 ? $steamid : null;
 
         return $steamid;
     }
@@ -295,6 +295,6 @@ class SteamLogin implements SteamLoginInterface
      */
     public static function button(string $type = 'small'): string
     {
-        return 'https://steamcommunity-a.akamaihd.net/public/images/signinthroughsteam/sits_0'.($type == 'small' ? 1 : 2).'.png';
+        return 'https://steamcommunity-a.akamaihd.net/public/images/signinthroughsteam/sits_0'.($type === 'small' ? 1 : 2).'.png';
     }
 }
