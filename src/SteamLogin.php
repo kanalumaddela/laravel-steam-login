@@ -150,11 +150,11 @@ class SteamLogin implements SteamLoginInterface
     /**
      * Build the steam openid login URL.
      *
-     * @param null $return
+     * @param string|null $return
      *
      * @return string
      */
-    public function createLoginUrl($return = null): string
+    public function createLoginUrl(?string $return = null): string
     {
         $params = [
             'openid.ns'         => self::OPENID_SPECS,
