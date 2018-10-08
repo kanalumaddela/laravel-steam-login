@@ -125,7 +125,7 @@ class SteamLogin implements SteamLoginInterface
      *
      * @return bool
      */
-    protected function validRequest()
+    protected function validRequest(): bool
     {
         $params = [
             'openid_assoc_handle',

@@ -2,6 +2,7 @@
 
 namespace kanalumaddela\LaravelSteamLogin;
 
+use Exception;
 use GuzzleHttp\Client as GuzzleClient;
 use GuzzleHttp\Psr7\Response;
 use Illuminate\Support\Facades\Config;
@@ -143,7 +144,7 @@ class SteamUser
             return call_user_func_array([$this, '__get'], [$property]);
         }
 
-        throw new \Exception('Unknown method '.$name);
+        throw new Exception('Unknown method '.$name);
     }
 
     /**

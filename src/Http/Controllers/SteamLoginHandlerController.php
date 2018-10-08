@@ -4,6 +4,7 @@ namespace kanalumaddela\LaravelSteamLogin\Http\Controllers;
 
 use App\Http\Controllers\Controller;
 use Exception;
+use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use kanalumaddela\LaravelSteamLogin\SteamLogin;
 use kanalumaddela\LaravelSteamLogin\SteamUser;
@@ -35,17 +36,19 @@ class SteamLoginHandlerController extends Controller
      *
      * @return \Illuminate\Http\RedirectResponse
      */
-    public function login()
+    public function login(): RedirectResponse
     {
         return $this->steam->redirectToSteam();
     }
 
+
     /**
-     * Validate after returning from steam.
+     * Validate after returning from steam and redirect to the previous page.
      *
+     * @return RedirectResponse
      * @throws Exception
      */
-    public function auth()
+    public function auth(): RedirectResponse
     {
         try {
             if ($this->steam->validated()) {
