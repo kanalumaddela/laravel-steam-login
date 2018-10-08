@@ -41,12 +41,12 @@ class SteamLoginHandlerController extends Controller
         return $this->steam->redirectToSteam();
     }
 
-
     /**
      * Validate after returning from steam and redirect to the previous page.
      *
-     * @return RedirectResponse
      * @throws Exception
+     *
+     * @return RedirectResponse
      */
     public function auth(): RedirectResponse
     {
