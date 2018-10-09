@@ -13,7 +13,6 @@
     ],
     "require": {
         "php": "^7.1",
-        "ext-curl": "*",
         "ext-json": "*",
         "ext-libxml": "*",
         "ext-simplexml": "*",
