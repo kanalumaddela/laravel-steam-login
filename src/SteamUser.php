@@ -107,10 +107,10 @@ class SteamUser
 
         $this->attributes = new \stdClass();
 
-        $this->attributes->steamId = $this->steamId->ConvertToUInt64();
-        $this->attributes->steamId2 = $this->steamId->RenderSteam2();
-        $this->attributes->steamId3 = $this->steamId->RenderSteam3();
-        $this->attributes->accountId = $this->steamId->GetAccountID();
+        $this->attributes->steamId = $this->xPawSteamId->ConvertToUInt64();
+        $this->attributes->steamId2 = $this->xPawSteamId->RenderSteam2();
+        $this->attributes->steamId3 = $this->xPawSteamId->RenderSteam3();
+        $this->attributes->accountId = $this->xPawSteamId->GetAccountID();
         $this->attributes->accountUrl = sprintf(self::STEAM_PROFILE, $this->attributes->steamId3);
         $this->attributes->profileDataUrl = sprintf(self::STEAM_PROFILE.'/?xml=1', $this->attributes->steamId);
 
