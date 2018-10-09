@@ -74,11 +74,11 @@ class SteamUser
     protected $profileDataUrl;
 
     /**
-     * Guzzle instance.
+     * xPaw instance.
      *
      * @var \SteamID
      */
-    protected $steamId;
+    protected $xPawSteamId;
 
     /**
      * Guzzle instance.
@@ -102,7 +102,7 @@ class SteamUser
      */
     public function __construct($steamId, GuzzleClient $guzzle = null)
     {
-        $this->steamId = new SteamID($steamId);
+        $this->xPawSteamId = new SteamID($steamId);
         $this->guzzle = $guzzle ?? new GuzzleClient();
 
         $this->attributes = new \stdClass();
@@ -135,8 +135,8 @@ class SteamUser
         if (method_exists($this->fluent, $name)) {
             return call_user_func_array([$this->fluent, $name], $arguments);
         }
-        if (method_exists($this->steamId, $name)) {
-            return call_user_func_array([$this->steamId, $name], $arguments);
+        if (method_exists($this->xPawSteamId, $name)) {
+            return call_user_func_array([$this->xPawSteamId, $name], $arguments);
         }
         if (substr($name, 0, 3) === 'get') {
             $property = lcfirst(substr($name, 3));
