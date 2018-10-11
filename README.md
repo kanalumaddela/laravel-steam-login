@@ -21,6 +21,52 @@ Make sure you have made/performed your migrations along with updating your `User
 - PHP 7.1+
 - Laravel 5.6+
 
+### Quick Setup (2.x)
+1. Install via composer
+```
+composer require kanalumaddela/laravel-steam-login:^2.*
+```
+2. Publish config files
+```
+php artisan vendor:publish --force --provider kanalumaddela\LaravelSteamLogin\SteamLoginServiceProvider
+```
+3. Edit `routes/web.php`
+```php
+Route::get('login/steam', 'Auth\SteamLoginController@login')->name('login.steam');
+Route::get('auth/steam', 'Auth\SteamLoginController@auth')->name('auth.steam');
+```
+4. Make and setup controller
+```
+php artisan make:controller Auth/SteamLoginController
+```
+```php
+<?php
+
+namespace App\Http\Controllers\Auth;
+
+use App\User;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
+use kanalumaddela\LaravelSteamLogin\Http\Controllers\SteamLoginHandlerController;
+use kanalumaddela\LaravelSteamLogin\SteamUser;
+
+class SteamLoginController extends SteamLoginHandlerController // note im extending the controller included with this lib
+{
+    public function authenticated(Request $request, SteamUser $steamUser)
+    {
+        // user has been authenticated/validated
+        // this is where your magic goes e.g. Auth::login(), User::where(), etc
+        $user = User::firstOrCreate([
+        	// you shouldn't be storing the steam64, the account is the true unique id for a person's steam account and isn't reliant on steam universe
+        	'steam_account_id' => $steamUser->accountId,
+        ]);
+
+        // I suggest NOT passing the $remember arg and properly setting up a remember token system. Either be lazy and use $remember or be even lazier and make the session length very long.
+        Auth::login($user);
+    }
+}
+```
+
 ## Credits
 
 Thanks to these libs which led me to make this
