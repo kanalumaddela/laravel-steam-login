@@ -34,6 +34,8 @@ php artisan vendor:publish --force --provider kanalumaddela\LaravelSteamLogin\St
 ```php
 Route::get('login/steam', 'Auth\SteamLoginController@login')->name('login.steam');
 Route::get('auth/steam', 'Auth\SteamLoginController@auth')->name('auth.steam');
+
+Route::post('logout', 'Auth\LoginController@logout')->name('logout'); // or Auth::routes(); if you're using built in auth also
 ```
 4. Make and setup controller
 ```
