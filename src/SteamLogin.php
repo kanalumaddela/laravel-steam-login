@@ -205,9 +205,9 @@ class SteamLogin implements SteamLoginInterface
         $x = ($steamid >> 56) & 0xFF;
         $y = $accountid & 1;
         $z = $accountid >> 1;
-        
+
         $this->player->steamid2 = "STEAM_0:$y:$z";
-        $this->player->steamid3 = "[U:1:".$w."]";
+        $this->player->steamid3 = '[U:1:'.$w.']';
         $this->player->accountid = $accountid;
     }
 
