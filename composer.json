@@ -13,7 +13,6 @@
     ],
     "require": {
         "php": "^7.0",
-        "ext-bcmath": "*",
         "ext-curl": "*",
         "illuminate/http": "5.*",
         "illuminate/routing": "5.*",
