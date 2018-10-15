@@ -228,6 +228,10 @@ class SteamLogin implements SteamLoginInterface
     public function validated(): bool
     {
         if (!$this->validRequest()) {
+            if ($this->request->has(openid_error)) {
+                throw new Exception($this->request->input('openid_error'));
+            }
+            
             return false;
         }
 
