@@ -52,18 +52,23 @@ use Illuminate\Support\Facades\Auth;
 use kanalumaddela\LaravelSteamLogin\Http\Controllers\SteamLoginHandlerController;
 use kanalumaddela\LaravelSteamLogin\SteamUser;
 
-class SteamLoginController extends SteamLoginHandlerController // note im extending the controller included with this lib
+class SteamLoginController extends SteamLoginHandlerController
 {
     public function authenticated(Request $request, SteamUser $steamUser)
     {
-        // user has been authenticated/validated
-        // this is where your magic goes e.g. Auth::login(), User::where(), etc
-        $user = User::firstOrCreate([
-        	// you shouldn't be storing the steam64, the account is the true unique id for a person's steam account and isn't reliant on steam universe
-        	'steam_account_id' => $steamUser->accountId,
-        ]);
+        // find user by steam account id
+        $user = User::where('steam_account_id', $steamUser->accountId);
 
-        // I suggest NOT passing the $remember arg and properly setting up a remember token system. Either be lazy and use $remember or be even lazier and make the session length very long.
+        // if the user doesn't exist, create them
+        if (!$user) {
+            $user = User::create([
+                'name' => $steamUser->name,
+                'steam_account_id' => $steamUser->accountId,
+            ]);
+        }
+
+        // I suggest NOT passing the $remember arg and properly setting up a remember token system.
+        // Either be lazy and use $remember or be even lazier and make the session length very long.
         Auth::login($user);
     }
 }
