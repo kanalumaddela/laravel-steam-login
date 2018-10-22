@@ -24,7 +24,7 @@ Make sure you have made/performed your migrations along with updating your `User
 ### Quick Setup (2.x)
 1. Install via composer
 ```
-composer require kanalumaddela/laravel-steam-login:^2.*
+composer require kanalumaddela/laravel-steam-login
 ```
 2. Publish config files
 ```
