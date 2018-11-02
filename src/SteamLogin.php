@@ -8,6 +8,7 @@ use GuzzleHttp\Psr7\Response;
 use Illuminate\Foundation\Application;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Support\Facades\Config;
+use InvalidArgumentException;
 
 class SteamLogin implements SteamLoginInterface
 {
@@ -114,7 +115,7 @@ class SteamLogin implements SteamLoginInterface
         $this->previousPage = $this->validRequest() && $this->request->has('redirect') ? $this->request->query('redirect') : ($previousPage != $this->loginRoute && $previousPage != $this->authRoute ? $previousPage : url('/'));
 
         if (!filter_var($this->previousPage, FILTER_VALIDATE_URL)) {
-            throw new Exception('previousPage is not valid url');
+            throw new InvalidArgumentException('previousPage is not valid url: '.$this->previousPage);
         }
 
         if (!$this->request->has('redirect')) {
