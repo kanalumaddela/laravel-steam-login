@@ -112,12 +112,13 @@ class SteamLogin implements SteamLoginInterface
         $this->authRoute = route(Config::get('steam-login.routes.auth'));
 
         $this->previousPage = $this->validRequest() && $this->request->has('redirect') ? $this->request->query('redirect') : ($previousPage != $this->loginRoute && $previousPage != $this->authRoute ? $previousPage : url('/'));
-        if (!$this->request->has('redirect')) {
-            $this->previousPage = urlencode($this->previousPage);
-        }
 
         if (!filter_var($this->previousPage, FILTER_VALIDATE_URL)) {
             throw new Exception('previousPage is not valid url');
+        }
+
+        if (!$this->request->has('redirect')) {
+            $this->previousPage = urlencode($this->previousPage);
         }
 
         $this->setReturnUrl($this->authRoute.'?redirect='.$previousPage);
