@@ -57,7 +57,7 @@ class SteamLoginController extends SteamLoginHandlerController
     public function authenticated(Request $request, SteamUser $steamUser)
     {
         // find user by steam account id
-        $user = User::where('steam_account_id', $steamUser->accountId);
+        $user = User::where('steam_account_id', $steamUser->accountId)->first();
 
         // if the user doesn't exist, create them
         if (!$user) {
