@@ -71,6 +71,19 @@ class SteamLoginController extends SteamLoginHandlerController
         // Either be lazy and use $remember or be even lazier and make the session length very long.
         Auth::login($user);
     }
+    
+    /**
+     * Throw SteamLogin exception.
+     *
+     * @param Exception $exception
+     *
+     * @throws Exception
+     */
+    public function error(Exception $exception)
+    {
+        // failed to login
+        throw $exception;
+    }
 }
 ```
 
