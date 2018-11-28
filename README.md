@@ -49,6 +49,7 @@ namespace App\Http\Controllers\Auth;
 use App\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Hash;
 use kanalumaddela\LaravelSteamLogin\Http\Controllers\SteamLoginHandlerController;
 use kanalumaddela\LaravelSteamLogin\SteamUser;
 
@@ -64,6 +65,8 @@ class SteamLoginController extends SteamLoginHandlerController
             $user = User::create([
                 'name' => $steamUser->name,
                 'steam_account_id' => $steamUser->accountId,
+                // generate a random pass or make them set one when registering, you decide
+                'password' => Hash::make(str_random())
             ]);
         }
 
@@ -81,7 +84,8 @@ class SteamLoginController extends SteamLoginHandlerController
      */
     public function error(Exception $exception)
     {
-        // failed to login
+        // failed to login so the default method is the throw the exception
+        // it's best if you show a custom error page or do something like log the details
         throw $exception;
     }
 }
