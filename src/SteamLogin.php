@@ -106,7 +106,7 @@ class SteamLogin implements SteamLoginInterface
         $this->app = $app;
         $this->request = $app->request;
         $this->guzzle = new GuzzleClient();
-        $this->https = $this->request->server('HTTP_X_FORWARDED_PROTO') === 'https' ?? isset($_SERVER['https']);
+        $this->https = (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off') || $_SERVER['SERVER_PORT'] == 443 || (isset($_SERVER['HTTP_X_FORWARDED_PROTO']) ? $_SERVER['HTTP_X_FORWARDED_PROTO'] === 'https' : false);
 
         $previousPage = url()->previous();
         $this->loginRoute = route(Config::get('steam-login.routes.login'));
