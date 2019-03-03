@@ -48,6 +48,16 @@ abstract class AbstractSteamLoginController extends Controller implements SteamC
     }
 
     /**
+     * Keep for deprecation purposes
+     *
+     * @return mixed
+     */
+    public function auth()
+    {
+        return call_user_func([$this, 'authenticate']);
+    }
+
+    /**
      * Authenticate the current request after returning from
      * steam login page.
      *
