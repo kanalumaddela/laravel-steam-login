@@ -118,7 +118,7 @@ class SteamLogin implements SteamLoginInterface
     public function __construct($app = null)
     {
         $this->app = !empty($app) && \is_object($app) ? $app : \app();
-        $this->isLumen = \class_exists('\Illuminate\Foundation\Application', false);
+        $this->isLumen = !\class_exists('\Illuminate\Foundation\Application', false);
         $this->request = $this->app->get('request');
         $this->guzzle = new GuzzleClient();
         $this->https = (!empty($this->request->server('HTTPS')) && $this->request->server('HTTPS') !== 'off') || $this->request->server('SERVER_PORT') === 443 || $this->request->server('HTTP_X_FORWARDED_PROTO') === 'https';
