@@ -116,8 +116,8 @@ class SteamUser
 
         $this->fluent = new Fluent($this->attributes);
 
-        $this->method = Config::get('steam-login.method', 'xml') === 'api' ? 'api' : 'xml';
-        $this->profileDataUrl = $this->method === 'xml' ? $this->attributes->profileDataUrl : sprintf(self::STEAM_PLAYER_API, Config::get('steam-login.api_key'), $this->attributes->steamId);
+        $this->method = config('steam-login.method', 'xml') === 'api' ? 'api' : 'xml';
+        $this->profileDataUrl = $this->method === 'xml' ? $this->attributes->profileDataUrl : sprintf(self::STEAM_PLAYER_API, config('steam-login.api_key'), $this->attributes->steamId);
     }
 
     /**
@@ -186,7 +186,7 @@ class SteamUser
      */
     private function userInfo()
     {
-        $this->response = $this->guzzle->get($this->profileDataUrl, ['connect_timeout' => Config::get('steam-login.timeout')]);
+        $this->response = $this->guzzle->get($this->profileDataUrl, ['connect_timeout' => config('steam-login.timeout')]);
         $data = $this->method === 'xml' ? simplexml_load_string($this->response->getBody(), 'SimpleXMLElement', LIBXML_NOCDATA) : json_decode($this->response->getBody());
 
         switch ($this->method) {

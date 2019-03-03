@@ -7,7 +7,6 @@ use GuzzleHttp\Client as GuzzleClient;
 use GuzzleHttp\Psr7\Response;
 use Illuminate\Foundation\Application;
 use Illuminate\Http\RedirectResponse;
-use Illuminate\Support\Facades\Config;
 use InvalidArgumentException;
 
 class SteamLogin implements SteamLoginInterface
@@ -109,8 +108,8 @@ class SteamLogin implements SteamLoginInterface
         $this->https = (!empty($this->request->server('HTTPS')) && $this->request->server('HTTPS') !== 'off') || $this->request->server('SERVER_PORT') === 443 || $this->request->server('HTTP_X_FORWARDED_PROTO') === 'https';
 
         $previousPage = url()->previous();
-        $this->loginRoute = route(Config::get('steam-login.routes.login'));
-        $this->authRoute = route(Config::get('steam-login.routes.auth'));
+        $this->loginRoute = route(config('steam-login.routes.login'));
+        $this->authRoute = route(config('steam-login.routes.auth'));
 
         $this->previousPage = $this->validRequest() && $this->request->has('redirect') ? $this->request->query('redirect') : ($previousPage != $this->loginRoute && $previousPage != $this->authRoute ? $previousPage : url('/'));
 
@@ -270,7 +269,7 @@ class SteamLogin implements SteamLoginInterface
         $params['openid.mode'] = 'check_authentication';
 
         $this->response = $this->guzzle->post(self::OPENID_STEAM, [
-            'connect_timeout' => Config::get('steam-login.timeout'),
+            'connect_timeout' => config('steam-login.timeout'),
             'form_params'     => $params,
         ]);
 

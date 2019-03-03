@@ -13,7 +13,10 @@ class SteamLoginServiceProvider extends ServiceProvider
      */
     public function boot()
     {
-        $this->publishes([__DIR__.'/../config/steam-login.php' => config_path('steam-login.php')]);
+        // hack to only publish config on laravel
+        if (app() instanceof \Illuminate\Foundation\Application) {
+            $this->publishes([__DIR__.'/../config/steam-login.php' => config_path('steam-login.php')]);
+        }
     }
 
     /**
