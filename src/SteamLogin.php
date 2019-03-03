@@ -123,14 +123,7 @@ class SteamLogin implements SteamLoginInterface
         $this->guzzle = new GuzzleClient();
         $this->https = (!empty($this->request->server('HTTPS')) && $this->request->server('HTTPS') !== 'off') || $this->request->server('SERVER_PORT') === 443 || $this->request->server('HTTP_X_FORWARDED_PROTO') === 'https';
 
-        $this->loginRoute = $this->https ? \secure_url(\config('steam-login.routes.login')) : \route(\config('steam-login.routes.login'));
-        $this->authRoute = $this->https ? \secure_url(\config('steam-login.routes.auth')) : \route(\config('steam-login.routes.auth'));
-
-        $previousPage = !$this->isLumen ? \url()->previous() : \url('/');
-
-        $this->redirectTo = $this->validRequest() && $this->request->has('redirect') ? $this->request->query('redirect') : (!\in_array($previousPage, [$this->loginRoute, $this->authRoute]) ? $previousPage : \url('/'));
-
-        $this->setRedirectTo($this->redirectTo);
+        $this->generateLoginUrl();
     }
 
     /**
@@ -196,6 +189,25 @@ class SteamLogin implements SteamLoginInterface
         ];
 
         return self::OPENID_STEAM.'?'.\http_build_query($params);
+    }
+
+    /**
+     * Generate or regenreate the login URL.
+     *
+     * @return $this
+     */
+    public function generateLoginUrl()
+    {
+        $this->loginRoute = \route(\config('steam-login.routes.login'));
+        $this->authRoute = \route(\config('steam-login.routes.auth'));
+
+        $previousPage = !$this->isLumen ? \url()->previous() : \url('/');
+
+        $this->redirectTo = $this->validRequest() && $this->request->has('redirect') ? $this->request->query('redirect') : (!\in_array($previousPage, [$this->loginRoute, $this->authRoute]) ? $previousPage : \url('/'));
+
+        $this->setRedirectTo($this->redirectTo);
+
+        return $this;
     }
 
     /**

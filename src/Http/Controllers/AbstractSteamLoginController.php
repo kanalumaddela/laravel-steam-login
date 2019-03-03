@@ -33,9 +33,9 @@ abstract class AbstractSteamLoginController extends Controller implements SteamC
      */
     public function __construct(Request $request, SteamLogin $steam)
     {
-        $this->request = $request;
-        $this->steam = $steam;
         app()->get('url')->forceScheme($steam->isHttps() ? 'https' : 'http');
+        $this->request = $request;
+        $this->steam = $steam->createLoginUrl();
     }
 
     /**
