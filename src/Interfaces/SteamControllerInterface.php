@@ -12,5 +12,5 @@ interface SteamControllerInterface
 
     public function authenticate();
 
-    public function authenticated(Request $request,  SteamUser $steamUser);
+    public function authenticated(Request $request, SteamUser $steamUser);
 }

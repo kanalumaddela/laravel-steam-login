@@ -5,7 +5,6 @@ namespace kanalumaddela\LaravelSteamLogin;
 use Exception;
 use GuzzleHttp\Client as GuzzleClient;
 use GuzzleHttp\Psr7\Response;
-use Illuminate\Support\Facades\Config;
 use Illuminate\Support\Fluent;
 use SteamID;
 
