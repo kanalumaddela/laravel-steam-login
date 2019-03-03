@@ -38,13 +38,23 @@ abstract class AbstractSteamLoginController extends Controller implements SteamC
     }
 
     /**
-     * Redirect to steam login page.
+     * Redirect to steam login page or maybe show a login page if overridden.
      *
      * @return \Illuminate\Http\RedirectResponse
      */
     public function login(): RedirectResponse
     {
         return $this->redirectToSteam();
+    }
+
+    /**
+     * Redirect the user to steam login page.
+     *
+     * @return \Illuminate\Http\RedirectResponse
+     */
+    public function redirectToSteam(): RedirectResponse
+    {
+        return $this->steam->redirectToSteam();
     }
 
     /**
