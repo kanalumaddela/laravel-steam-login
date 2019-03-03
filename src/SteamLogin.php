@@ -134,7 +134,7 @@ class SteamLogin implements SteamLoginInterface
     }
 
     /**
-     * Check if HTTPS
+     * Check if HTTPS.
      *
      * @return bool
      */
