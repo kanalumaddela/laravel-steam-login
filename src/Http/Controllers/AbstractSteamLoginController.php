@@ -51,8 +51,9 @@ abstract class AbstractSteamLoginController extends Controller implements SteamC
      * Authenticate the current request after returning from
      * steam login page.
      *
-     * @return \Illuminate\Http\RedirectResponse
      * @throws \Exception
+     *
+     * @return \Illuminate\Http\RedirectResponse
      */
     public function authenticate()
     {
@@ -68,5 +69,4 @@ abstract class AbstractSteamLoginController extends Controller implements SteamC
 
         return $this->steam->previousPage();
     }
-
 }

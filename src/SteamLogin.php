@@ -62,7 +62,7 @@ class SteamLogin implements SteamLoginInterface
     protected $app;
 
     /**
-     * Check if application is Lumen or not
+     * Check if application is Lumen or not.
      *
      * @var bool
      */
@@ -151,7 +151,7 @@ class SteamLogin implements SteamLoginInterface
     }
 
     /**
-     * Set the ?redirect param
+     * Set the ?redirect param.
      *
      * @param $url
      *
@@ -257,7 +257,7 @@ class SteamLogin implements SteamLoginInterface
     }
 
     /**
-     * Return the OpenID response
+     * Return the OpenID response.
      *
      * @return string
      */
