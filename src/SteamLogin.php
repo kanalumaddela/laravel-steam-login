@@ -157,7 +157,7 @@ class SteamLogin implements SteamLoginInterface
      *
      * @return $this
      */
-    public function setRedirectTo($url): self
+    public function setRedirectTo(string $url): self
     {
         if (!\filter_var($url, FILTER_VALIDATE_URL)) {
             throw new InvalidArgumentException('?redirect given is not valid url: '.$url);
