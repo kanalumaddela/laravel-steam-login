@@ -48,7 +48,7 @@ abstract class AbstractSteamLoginController extends Controller implements SteamC
     }
 
     /**
-     * Keep for deprecation purposes
+     * Keep for deprecation purposes.
      *
      * @return mixed
      */
