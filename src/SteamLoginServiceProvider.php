@@ -17,8 +17,8 @@ class SteamLoginServiceProvider extends ServiceProvider
         if (\class_exists('\Illuminate\Foundation\Application', false)) {
             $this->publishes([__DIR__.'/../config/steam-login.php' => \config_path('steam-login.php')]);
         } else {
-            // create config folder automatically
-            if (!\file_exists($this->app->basePath('config').'/')) {
+            // create config file and folder automatically if not found
+            if (!\file_exists($this->app->basePath('config').'/') || !file_exists($this->app->basePath('config').'/steam-login.php')) {
                 \mkdir($this->app->basePath('config'));
                 \copy(__DIR__.'/../config/steam-login.php', $this->app->basePath('config').'/steam-login.php');
             }
