@@ -123,8 +123,8 @@ class SteamLogin implements SteamLoginInterface
         $this->guzzle = new GuzzleClient();
         $this->https = (!empty($this->request->server('HTTPS')) && $this->request->server('HTTPS') !== 'off') || $this->request->server('SERVER_PORT') === 443 || $this->request->server('HTTP_X_FORWARDED_PROTO') === 'https';
 
-        $this->loginRoute = \route(\config('steam-login.routes.login'));
-        $this->authRoute = \route(\config('steam-login.routes.auth'));
+        $this->loginRoute = $this->https ? \secure_url(\config('steam-login.routes.login')) : \route(\config('steam-login.routes.login'));
+        $this->authRoute = $this->https ? \secure_url(\config('steam-login.routes.auth')) : \route(\config('steam-login.routes.auth'));
 
         $previousPage = !$this->isLumen ? \url()->previous() : \url('/');
 
@@ -134,20 +134,13 @@ class SteamLogin implements SteamLoginInterface
     }
 
     /**
-     * Check if query parameters are valid post steam login.
+     * Check if HTTPS
      *
      * @return bool
      */
-    protected function validRequest(): bool
+    public function isHttps(): bool
     {
-        $params = [
-            'openid_assoc_handle',
-            'openid_claimed_id',
-            'openid_sig',
-            'openid_signed',
-        ];
-
-        return $this->request->filled($params);
+        return $this->https;
     }
 
     /**
@@ -347,5 +340,22 @@ class SteamLogin implements SteamLoginInterface
     public static function button(string $type = 'small'): string
     {
         return 'https://steamcommunity-a.akamaihd.net/public/images/signinthroughsteam/sits_0'.($type === 'small' ? 1 : 2).'.png';
+    }
+
+    /**
+     * Check if query parameters are valid post steam login.
+     *
+     * @return bool
+     */
+    protected function validRequest(): bool
+    {
+        $params = [
+            'openid_assoc_handle',
+            'openid_claimed_id',
+            'openid_sig',
+            'openid_signed',
+        ];
+
+        return $this->request->filled($params);
     }
 }
