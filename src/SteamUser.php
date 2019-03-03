@@ -111,13 +111,13 @@ class SteamUser
         $this->attributes->steamId2 = $this->xPawSteamId->RenderSteam2();
         $this->attributes->steamId3 = $this->xPawSteamId->RenderSteam3();
         $this->attributes->accountId = $this->xPawSteamId->GetAccountID();
-        $this->attributes->accountUrl = sprintf(self::STEAM_PROFILE, $this->attributes->steamId3);
-        $this->attributes->profileDataUrl = sprintf(self::STEAM_PROFILE.'/?xml=1', $this->attributes->steamId);
+        $this->attributes->accountUrl = \sprintf(self::STEAM_PROFILE, $this->attributes->steamId3);
+        $this->attributes->profileDataUrl = \sprintf(self::STEAM_PROFILE.'/?xml=1', $this->attributes->steamId);
 
         $this->fluent = new Fluent($this->attributes);
 
-        $this->method = config('steam-login.method', 'xml') === 'api' ? 'api' : 'xml';
-        $this->profileDataUrl = $this->method === 'xml' ? $this->attributes->profileDataUrl : sprintf(self::STEAM_PLAYER_API, config('steam-login.api_key'), $this->attributes->steamId);
+        $this->method = \config('steam-login.method', 'xml') === 'api' ? 'api' : 'xml';
+        $this->profileDataUrl = $this->method === 'xml' ? $this->attributes->profileDataUrl : \sprintf(self::STEAM_PLAYER_API, \config('steam-login.api_key'), $this->attributes->steamId);
     }
 
     /**
@@ -132,16 +132,16 @@ class SteamUser
      */
     public function __call($name, $arguments)
     {
-        if (method_exists($this->fluent, $name)) {
-            return call_user_func_array([$this->fluent, $name], $arguments);
+        if (\method_exists($this->fluent, $name)) {
+            return \call_user_func_array([$this->fluent, $name], $arguments);
         }
-        if (method_exists($this->xPawSteamId, $name)) {
-            return call_user_func_array([$this->xPawSteamId, $name], $arguments);
+        if (\method_exists($this->xPawSteamId, $name)) {
+            return \call_user_func_array([$this->xPawSteamId, $name], $arguments);
         }
-        if (substr($name, 0, 3) === 'get') {
-            $property = lcfirst(substr($name, 3));
+        if (\substr($name, 0, 3) === 'get') {
+            $property = \lcfirst(\substr($name, 3));
 
-            return call_user_func_array([$this, '__get'], [$property]);
+            return \call_user_func_array([$this, '__get'], [$property]);
         }
 
         throw new Exception('Unknown method '.$name);
@@ -186,8 +186,8 @@ class SteamUser
      */
     private function userInfo()
     {
-        $this->response = $this->guzzle->get($this->profileDataUrl, ['connect_timeout' => config('steam-login.timeout')]);
-        $data = $this->method === 'xml' ? simplexml_load_string($this->response->getBody(), 'SimpleXMLElement', LIBXML_NOCDATA) : json_decode($this->response->getBody());
+        $this->response = $this->guzzle->get($this->profileDataUrl, ['connect_timeout' => \config('steam-login.timeout')]);
+        $data = $this->method === 'xml' ? \simplexml_load_string($this->response->getBody(), 'SimpleXMLElement', LIBXML_NOCDATA) : \json_decode($this->response->getBody());
 
         switch ($this->method) {
             case 'api':

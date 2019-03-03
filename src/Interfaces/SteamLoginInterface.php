@@ -1,6 +1,6 @@
 <?php
 
-namespace kanalumaddela\LaravelSteamLogin;
+namespace kanalumaddela\LaravelSteamLogin\Interfaces;
 
 use Illuminate\Http\RedirectResponse;
 

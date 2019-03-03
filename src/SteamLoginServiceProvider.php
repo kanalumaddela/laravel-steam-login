@@ -13,9 +13,15 @@ class SteamLoginServiceProvider extends ServiceProvider
      */
     public function boot()
     {
-        // hack to only publish config on laravel
-        if (app() instanceof \Illuminate\Foundation\Application) {
-            $this->publishes([__DIR__.'/../config/steam-login.php' => config_path('steam-login.php')]);
+        // hacky stuff for laravel/lumen
+        if (\class_exists('\Illuminate\Foundation\Application', false)) {
+            $this->publishes([__DIR__.'/../config/steam-login.php' => \config_path('steam-login.php')]);
+        } else {
+            // create config folder automatically
+            if (!\file_exists($this->app->basePath('config').'/')) {
+                \mkdir($this->app->basePath('config'));
+                \copy(__DIR__.'/../config/steam-login.php', $this->app->basePath('config').'/steam-login.php');
+            }
         }
     }
 
@@ -26,8 +32,8 @@ class SteamLoginServiceProvider extends ServiceProvider
      */
     public function register()
     {
-        $this->app->singleton('SteamLogin', function () {
-            return new SteamLogin($this->app);
+        $this->app->singleton('SteamLogin', function ($app) {
+            return new SteamLogin($app);
         });
     }
 }
