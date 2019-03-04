@@ -86,7 +86,7 @@ abstract class AbstractSteamLoginController extends Controller implements SteamC
             $result = $this->authenticated($this->request, $this->steam->getPlayer());
 
             if (!empty($result)) {
-                return  $result;
+                return $result;
             }
         } else {
             throw new Exception('Steam Login failed. Response: '.$this->steam->getOpenIdResponse());
