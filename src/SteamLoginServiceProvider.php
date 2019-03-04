@@ -35,7 +35,7 @@ class SteamLoginServiceProvider extends ServiceProvider
      */
     public function register()
     {
-        $this->app->singleton('SteamLogin', function($app) {
+        $this->app->singleton('SteamLogin', function ($app) {
             return new SteamLogin($app);
         });
     }
