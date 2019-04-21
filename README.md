@@ -62,7 +62,7 @@ class SteamLoginController extends AbstractSteamLoginController
         }
 
         // login user
-        // do not return to let AbstractSteamLoginController handle redirection back to the previous page the user was on before logging in
+        // do not return anything so AbstractSteamLoginController handles redirection to the previous page the user was on before logging in
         \Illuminate\Support\Facades\Auth::login($user);
     }
 }
