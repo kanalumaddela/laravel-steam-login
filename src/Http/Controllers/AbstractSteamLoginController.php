@@ -1,15 +1,25 @@
 <?php
+/**
+ * Laravel Steam Login
+ *
+ * @link      https://www.maddela.org
+ * @link      https://github.com/kanalumaddela/laravel-steam-login
+ *
+ * @author    kanalumaddela <git@maddela.org>
+ * @copyright Copyright (c) 2018-2019 Maddela
+ * @license   MIT
+ */
 
 namespace kanalumaddela\LaravelSteamLogin\Http\Controllers;
 
-use App\Http\Controllers\Controller;
 use Exception;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
-use kanalumaddela\LaravelSteamLogin\Interfaces\SteamControllerInterface;
+use Illuminate\Routing\Controller;
+use kanalumaddela\LaravelSteamLogin\Interfaces\SteamLoginControllerInterface;
 use kanalumaddela\LaravelSteamLogin\SteamLogin;
 
-abstract class AbstractSteamLoginController extends Controller implements SteamControllerInterface
+abstract class AbstractSteamLoginController extends Controller implements SteamLoginControllerInterface
 {
     /**
      * SteamLogin instance.
@@ -33,11 +43,6 @@ abstract class AbstractSteamLoginController extends Controller implements SteamC
      */
     public function __construct(Request $request, SteamLogin $steam)
     {
-        if (!$request->secure() && $steam->isHttps()) {
-            app()->get('url')->forceScheme('https');
-            $steam->generateLoginUrl();
-        }
-
         $this->request = $request;
         $this->steam = $steam;
     }
@@ -53,9 +58,7 @@ abstract class AbstractSteamLoginController extends Controller implements SteamC
     }
 
     /**
-     * Redirect the user to steam login page.
-     *
-     * @return \Illuminate\Http\RedirectResponse
+     * {@inheritdoc}
      */
     public function redirectToSteam(): RedirectResponse
     {
@@ -65,20 +68,17 @@ abstract class AbstractSteamLoginController extends Controller implements SteamC
     /**
      * Keep for deprecation purposes.
      *
-     * @return mixed
+     * @return \Illuminate\Http\RedirectResponse|mixed
+     * @throws \Exception
      */
     public function auth()
     {
-        return call_user_func([$this, 'authenticate']);
+        return $this->authenticate();
     }
 
     /**
-     * Authenticate the current request after returning from
-     * steam login page.
-     *
+     * {@inheritdoc}
      * @throws \Exception
-     *
-     * @return \Illuminate\Http\RedirectResponse
      */
     public function authenticate()
     {

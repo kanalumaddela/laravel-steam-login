@@ -1,4 +1,14 @@
 <?php
+/**
+ * Laravel Steam Login
+ *
+ * @link      https://www.maddela.org
+ * @link      https://github.com/kanalumaddela/laravel-steam-login
+ *
+ * @author    kanalumaddela <git@maddela.org>
+ * @copyright Copyright (c) 2018-2019 Maddela
+ * @license   MIT
+ */
 
 namespace kanalumaddela\LaravelSteamLogin\Interfaces;
 
@@ -7,7 +17,7 @@ use Illuminate\Http\RedirectResponse;
 interface SteamLoginInterface
 {
     /**
-     * Return the steamid being validated or not.
+     * Return the steamid if validated.
      *
      * @return string|null
      */

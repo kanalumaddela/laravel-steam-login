@@ -11,15 +11,17 @@
 
 Make sure you have made/performed your migrations along with updating your `User` model if you plan to follow the examples. I suggest doing whatever works best for you, but certain suggestions should be followed.
 
-## 1.x
-- [Docs](https://github.com/kanalumaddela/laravel-steam-login/wiki/1.x)
-- PHP 7.0+
-- Laravel 5.5+
+| Version | PHP Version | Laravel Version | Docs |
+| ------- | ----------- | --------------- | ---- |
+| 1.x     | 7.0+        | 5.5+            | [Docs](https://github.com/kanalumaddela/laravel-steam-login/wiki/1.x) |
+| 2.x     | 7.1+        | 5.6+            | [Docs](https://github.com/kanalumaddela/laravel-steam-login/wiki/2.x) |
 
-## 2.x
-- [Docs](https://github.com/kanalumaddela/laravel-steam-login/wiki/2.x)
-- PHP 7.1+
-- Laravel 5.6+
+## Quick Setup (2.x, Laravel 5.6+)
+
+```
+compose require kanalumaddela/laravel-steam-login
+php artisan vendor:publish --force --provider kanalumaddela\LaravelSteamLogin\SteamLoginServiceProvider
+```
 
 ---
 
