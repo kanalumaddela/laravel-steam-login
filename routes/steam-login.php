@@ -1,6 +1,6 @@
 <?php
 /**
- * Laravel Steam Login
+ * Laravel Steam Login.
  *
  * @link      https://www.maddela.org
  * @link      https://github.com/kanalumaddela/laravel-steam-login
@@ -9,7 +9,6 @@
  * @copyright Copyright (c) 2018-2019 Maddela
  * @license   MIT
  */
-
 use Illuminate\Support\Facades\Route;
 use kanalumaddela\LaravelSteamLogin\Http\Controllers\SteamLoginController;
 

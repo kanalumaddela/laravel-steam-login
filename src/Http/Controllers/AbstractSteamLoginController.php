@@ -1,6 +1,6 @@
 <?php
 /**
- * Laravel Steam Login
+ * Laravel Steam Login.
  *
  * @link      https://www.maddela.org
  * @link      https://github.com/kanalumaddela/laravel-steam-login
@@ -68,8 +68,9 @@ abstract class AbstractSteamLoginController extends Controller implements SteamL
     /**
      * Keep for deprecation purposes.
      *
-     * @return \Illuminate\Http\RedirectResponse|mixed
      * @throws \Exception
+     *
+     * @return \Illuminate\Http\RedirectResponse|mixed
      */
     public function auth()
     {
@@ -78,6 +79,7 @@ abstract class AbstractSteamLoginController extends Controller implements SteamL
 
     /**
      * {@inheritdoc}
+     *
      * @throws \Exception
      */
     public function authenticate()

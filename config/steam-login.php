@@ -1,6 +1,6 @@
 <?php
 /**
- * Laravel Steam Login
+ * Laravel Steam Login.
  *
  * @link      https://www.maddela.org
  * @link      https://github.com/kanalumaddela/laravel-steam-login
@@ -11,7 +11,7 @@
  */
 
 return [
-    /**
+    /*
      * Steam API key used for pulling player's profile data
      *
      * @link https://steamcommunity.com/dev/apikey
@@ -20,7 +20,7 @@ return [
      */
     'api_key'    => env('STEAM_LOGIN_API_KEY', env('STEAM_API_KEY', null)),
 
-    /**
+    /*
      * Method of retrieving player's profile data.
      * Valid options: xml, api
      *
@@ -28,14 +28,14 @@ return [
      */
     'method'     => env('STEAM_LOGIN_PROFILE_METHOD', 'xml'),
 
-    /**
+    /*
      * Timeout (seconds) for any requests performed
      *
      * @var int
      */
     'timeout'    => env('STEAM_LOGIN_TIMEOUT', 5),
 
-    /**
+    /*
      * Login/Auth route names/paths
      *
      * @var array
@@ -45,7 +45,7 @@ return [
         'auth'  => env('STEAM_LOGIN_AUTH_ROUTE', env('STEAM_AUTH_ROUTE_NAME', 'auth.steam')),
     ],
 
-    /**
+    /*
      * Use the included routes and controller?
      * Disabled to prevent breaking of applications
      *

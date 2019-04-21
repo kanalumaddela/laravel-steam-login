@@ -1,6 +1,6 @@
 <?php
 /**
- * Laravel Steam Login
+ * Laravel Steam Login.
  *
  * @link      https://www.maddela.org
  * @link      https://github.com/kanalumaddela/laravel-steam-login
@@ -17,7 +17,6 @@ use kanalumaddela\LaravelSteamLogin\SteamUser;
 
 class SteamLoginController extends AbstractSteamLoginController
 {
-
     /**
      * Called when the request is successfully authenticated.
      *
@@ -28,6 +27,5 @@ class SteamLoginController extends AbstractSteamLoginController
      */
     public function authenticated(Request $request, SteamUser $steamUser)
     {
-
     }
 }
