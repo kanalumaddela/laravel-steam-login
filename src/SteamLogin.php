@@ -1,6 +1,6 @@
 <?php
 /**
- * Laravel Steam Login
+ * Laravel Steam Login.
  *
  * @link      https://www.maddela.org
  * @link      https://github.com/kanalumaddela/laravel-steam-login
@@ -286,9 +286,9 @@ class SteamLogin implements SteamLoginInterface
      *
      * @param bool $info
      *
-     * @return SteamUser
      * @throws Exception
      *
+     * @return SteamUser
      */
     public function getPlayer(bool $info = false): SteamUser
     {
@@ -318,9 +318,9 @@ class SteamLogin implements SteamLoginInterface
     /**
      * Check if login is valid.
      *
-     * @return bool
      * @throws Exception
      *
+     * @return bool
      */
     public function validated(): bool
     {

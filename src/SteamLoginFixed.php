@@ -1,6 +1,6 @@
 <?php
 /**
- * Laravel Steam Login
+ * Laravel Steam Login.
  *
  * @link      https://www.maddela.org
  * @link      https://github.com/kanalumaddela/laravel-steam-login
@@ -12,11 +12,12 @@
 
 namespace kanalumaddela\LaravelSteamLogin;
 
-
 use GuzzleHttp\Client as GuzzleClient;
 use Illuminate\Http\RedirectResponse;
 use InvalidArgumentException;
 use kanalumaddela\LaravelSteamLogin\Interfaces\SteamLoginInterface;
+use const PHP_URL_HOST;
+use const PHP_URL_PORT;
 use function config;
 use function get_class;
 use function in_array;
@@ -26,8 +27,6 @@ use function route;
 use function sprintf;
 use function strpos;
 use function url;
-use const PHP_URL_HOST;
-use const PHP_URL_PORT;
 
 class SteamLoginFixed implements SteamLoginInterface
 {
@@ -57,7 +56,7 @@ class SteamLoginFixed implements SteamLoginInterface
      */
     protected static $isHttps;
     /**
-     * Default OpenID form params
+     * Default OpenID form params.
      *
      * @var array
      */
@@ -116,7 +115,7 @@ class SteamLoginFixed implements SteamLoginInterface
      */
     protected $authRoute;
     /**
-     * ?redirect parameter used for automatic handling to the previous page a user was on
+     * ?redirect parameter used for automatic handling to the previous page a user was on.
      *
      * @var string
      */
@@ -158,6 +157,7 @@ class SteamLoginFixed implements SteamLoginInterface
         } catch (InvalidArgumentException $e) {
             $this->loginRoute = url(config('steam-login.routes.login'));
         }
+
         try {
             $this->authRoute = route(config('steam-login.routes.auth'));
         } catch (InvalidArgumentException $e) {
@@ -172,7 +172,7 @@ class SteamLoginFixed implements SteamLoginInterface
     }
 
     /**
-     * Build the login url with
+     * Build the login url with.
      *
      * @param string|null $return
      * @param string|null $redirectTo
