@@ -20,7 +20,53 @@ Make sure you have made/performed your migrations along with updating your `User
 
 ```
 compose require kanalumaddela/laravel-steam-login
+```
+```
 php artisan vendor:publish --force --provider kanalumaddela\LaravelSteamLogin\SteamLoginServiceProvider
+```
+`routes/web.php`
+```
+Route::get('login/steam', 'Auth\SteamLoginController@login')->name('login.steam');
+Route::get('auth/steam', 'Auth\SteamLoginController@auth')->name('auth.steam');
+```
+```
+php artisan make:controller Auth\SteamLoginController
+```
+```php
+<?php
+
+namespace App\Http\Controllers\Auth;
+
+use Illuminate\Http\Request;
+use kanalumaddela\LaravelSteamLogin\Http\Controllers\AbstractSteamLoginController;
+use kanalumaddela\LaravelSteamLogin\SteamUser;
+
+class SteamLoginController extends AbstractSteamLoginController
+{
+    /**
+     * {@inheritdoc}
+     */
+    public function authenticated(Request $request, SteamUser $steamUser)
+    {
+        // Implement auth logic here
+        // example assumes you have a `steam_account_id` column in your `users` table
+        $user = \App\User::where('steam_account_id', $steamUser->accountId)->first();
+
+        if (!$user) {
+            $steamUser->getUserInfo(); // retrieve and set user info pulled from steam
+
+            $user = \App\User::create([
+                'name'             => $steamUser->name,
+                'steam_account_id' => $steamUser->accountId,
+            ]);
+        }
+
+        // login user
+        // do not return to let AbstractSteamLoginController handle redirection back to the previous page the user was on before logging in
+        \Illuminate\Support\Facades\Auth::login($user);
+    }
+}
+
 ```
 
 ---
