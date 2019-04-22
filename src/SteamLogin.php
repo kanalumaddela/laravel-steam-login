@@ -1,6 +1,6 @@
 <?php
 /**
- * Laravel Steam Login
+ * Laravel Steam Login.
  *
  * @link      https://www.maddela.org
  * @link      https://github.com/kanalumaddela/laravel-steam-login
@@ -18,6 +18,7 @@ use GuzzleHttp\Psr7\Response;
 use Illuminate\Http\RedirectResponse;
 use InvalidArgumentException;
 use kanalumaddela\LaravelSteamLogin\Interfaces\SteamLoginInterface;
+use const PHP_URL_HOST;
 use function config;
 use function explode;
 use function filter_var;
@@ -32,7 +33,6 @@ use function route;
 use function sprintf;
 use function strpos;
 use function url;
-use const PHP_URL_HOST;
 
 class SteamLogin implements SteamLoginInterface
 {
@@ -216,6 +216,7 @@ class SteamLogin implements SteamLoginInterface
      * @param string|null $return
      *
      * @return string
+     *
      * @deprecated
      */
     public function createLoginUrl(?string $return = null): string
@@ -226,9 +227,9 @@ class SteamLogin implements SteamLoginInterface
     /**
      * @param string $redirectTo
      *
-     * @return \kanalumaddela\LaravelSteamLogin\SteamLogin
      * @throws InvalidArgumentException
      *
+     * @return \kanalumaddela\LaravelSteamLogin\SteamLogin
      */
     public function setRedirectTo(string $redirectTo = null): self
     {
@@ -267,9 +268,9 @@ class SteamLogin implements SteamLoginInterface
     /**
      * Check if login is valid.
      *
-     * @return bool
      * @throws Exception
      *
+     * @return bool
      */
     public function validated(): bool
     {
@@ -362,9 +363,9 @@ class SteamLogin implements SteamLoginInterface
      *
      * @param bool $info
      *
-     * @return SteamUser
      * @throws Exception
      *
+     * @return SteamUser
      */
     public function getPlayer(bool $info = false): SteamUser
     {
