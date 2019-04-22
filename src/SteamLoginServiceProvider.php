@@ -1,6 +1,6 @@
 <?php
 /**
- * Laravel Steam Login.
+ * Laravel Steam Login
  *
  * @link      https://www.maddela.org
  * @link      https://github.com/kanalumaddela/laravel-steam-login
@@ -13,12 +13,13 @@
 namespace kanalumaddela\LaravelSteamLogin;
 
 use Illuminate\Support\ServiceProvider;
-use function class_exists;
 use function config;
 use function config_path;
 use function copy;
 use function file_exists;
+use function get_class;
 use function mkdir;
+use function strpos;
 
 class SteamLoginServiceProvider extends ServiceProvider
 {
@@ -34,22 +35,28 @@ class SteamLoginServiceProvider extends ServiceProvider
      */
     public function boot()
     {
+        $isLaravel = strpos(get_class($this->app), 'Lumen') === false;
+
         // hacky stuff for laravel/lumen
-        if (class_exists('\Illuminate\Foundation\Application', false)) {
+        if ($isLaravel) {
             $this->publishes([__DIR__.'/../config/steam-login.php' => config_path('steam-login.php')]);
         } else {
             // create config file and folder automatically if not found for lumen
-            if (!file_exists($this->app->basePath('config').'/steam-login.php')) {
-                if (!file_exists($this->app->basePath('config'))) {
-                    mkdir($this->app->basePath('config'));
+            if (!file_exists(config_path('steam-login.php'))) {
+                if (!file_exists(config_path())) {
+                    mkdir(config_path());
                 }
 
-                copy(__DIR__.'/../config/steam-login.php', $this->app->basePath('config').'/steam-login.php');
+                copy(__DIR__.'/../config/steam-login.php', config_path('steam-login.php'));
             }
         }
 
-        if (config('steam-login.use_routes', false)) {
+        if ($isLaravel && (config('steam-login.use_all', false) || config('steam-login.use_routes', false))) {
             $this->loadRoutesFrom(__DIR__.'/../routes/steam-login.php');
+        }
+
+        if ($isLaravel && (config('steam-login.use_all', false) || config('steam-login.use_migrations', false))) {
+            $this->loadMigrationsFrom(__DIR__.'/../migrations');
         }
     }
 

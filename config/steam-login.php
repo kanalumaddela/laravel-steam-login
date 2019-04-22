@@ -1,6 +1,6 @@
 <?php
 /**
- * Laravel Steam Login.
+ * Laravel Steam Login
  *
  * @link      https://www.maddela.org
  * @link      https://github.com/kanalumaddela/laravel-steam-login
@@ -18,7 +18,7 @@ return [
      *
      * @var string
      */
-    'api_key'    => env('STEAM_LOGIN_API_KEY', env('STEAM_API_KEY', null)),
+    'api_key'        => env('STEAM_LOGIN_API_KEY', env('STEAM_API_KEY', null)),
 
     /*
      * Method of retrieving player's profile data.
@@ -26,30 +26,44 @@ return [
      *
      * @var string
      */
-    'method'     => env('STEAM_LOGIN_PROFILE_METHOD', 'xml'),
+    'method'         => env('STEAM_LOGIN_PROFILE_METHOD', 'xml'),
 
     /*
      * Timeout (seconds) for any requests performed
      *
      * @var int
      */
-    'timeout'    => env('STEAM_LOGIN_TIMEOUT', 5),
+    'timeout'        => env('STEAM_LOGIN_TIMEOUT', 5),
 
     /*
      * Login/Auth route names/paths
      *
      * @var array
      */
-    'routes'     => [
+    'routes'         => [
         'login' => env('STEAM_LOGIN_ROUTE', env('STEAM_LOGIN_ROUTE_NAME', 'login.steam')),
         'auth'  => env('STEAM_LOGIN_AUTH_ROUTE', env('STEAM_AUTH_ROUTE_NAME', 'auth.steam')),
     ],
 
     /*
-     * Use the included routes and controller?
-     * Disabled to prevent breaking of applications
+     * Use both migrations and routes?
+     * *setting this to true wiil override the options below it
      *
      * @var boolean
      */
-    'use_routes' => false,
+    'use_all'        => false,
+
+    /*
+     * Use the included routes?
+     *
+     * @var boolean
+     */
+    'use_routes'     => false,
+
+    /*
+     * Use the included migrations
+     *
+     * @var boolean
+     */
+    'use_migrations' => false,
 ];
