@@ -45,25 +45,27 @@ return [
         'auth'  => env('STEAM_LOGIN_AUTH_ROUTE', env('STEAM_AUTH_ROUTE_NAME', 'auth.steam')),
     ],
 
+    'controller'     => env('STEAM_LOGIN_CONTROLLER'),
+
     /*
      * Use both migrations and routes?
      * *setting this to true wiil override the options below it
      *
      * @var boolean
      */
-    'use_all'        => false,
+    'use_all'        => env('STEAM_LOGIN_USE_ALL', false),
 
     /*
      * Use the included routes?
      *
      * @var boolean
      */
-    'use_routes'     => false,
+    'use_routes'     => env('STEAM_LOGIN_USE_ROUTES', false),
 
     /*
      * Use the included migrations
      *
      * @var boolean
      */
-    'use_migrations' => false,
+    'use_migrations' => env('STEAM_LOGIN_USE_MIGRATIONS', false),
 ];

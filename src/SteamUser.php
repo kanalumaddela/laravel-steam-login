@@ -16,7 +16,6 @@ use GuzzleHttp\Client as GuzzleClient;
 use GuzzleHttp\Psr7\Response;
 use Illuminate\Support\Fluent;
 use SteamID;
-use const JSON_ERROR_NONE;
 use function array_merge;
 use function config;
 use function in_array;
@@ -25,6 +24,7 @@ use function json_last_error;
 use function simplexml_load_string;
 use function sprintf;
 use function ucfirst;
+use const JSON_ERROR_NONE;
 
 class SteamUser extends Fluent
 {

@@ -16,9 +16,9 @@ use Exception;
 use GuzzleHttp\Client as GuzzleClient;
 use GuzzleHttp\Psr7\Response;
 use Illuminate\Http\RedirectResponse;
+use Illuminate\Http\Request;
 use InvalidArgumentException;
-use kanalumaddela\LaravelSteamLogin\Interfaces\SteamLoginInterface;
-use const PHP_URL_HOST;
+use kanalumaddela\LaravelSteamLogin\Contracts\SteamLoginInterface;
 use function config;
 use function explode;
 use function filter_var;
@@ -32,7 +32,10 @@ use function redirect;
 use function route;
 use function sprintf;
 use function strpos;
+use function trigger_error;
 use function url;
+use const FILTER_VALIDATE_URL;
+use const PHP_URL_HOST;
 
 class SteamLogin implements SteamLoginInterface
 {
@@ -160,6 +163,10 @@ class SteamLogin implements SteamLoginInterface
      */
     public function __construct($app = null)
     {
+        if (PHP_INT_SIZE !== 8) {
+            trigger_error('64-bit PHP is required to convert steamids', E_USER_WARNING);
+        }
+
         $this->app = $app;
         $this->request = $app->get('request');
         self::$isLaravel = strpos(get_class($app), 'Lumen') === false;
@@ -170,14 +177,13 @@ class SteamLogin implements SteamLoginInterface
             $this->app->get('url')->forceScheme('https');
         }
 
-        $this->realm = (self::$isHttps ? 'https' : 'http').'://'.$this->request->getHttpHost();
+        $this->setGuzzle(new GuzzleClient())->setRealm();
+
         $this->loginRoute = route(config('steam-login.routes.login'));
         $this->authRoute = route(config('steam-login.routes.auth'));
         $this->loginUrl = $this->buildLoginUrl($this->authRoute);
 
-        if ($originalScheme !== 'https') {
-            $this->app->get('url')->forceScheme('https');
-        }
+        $this->app->get('url')->forceScheme($originalScheme);
     }
 
     /**
@@ -227,18 +233,16 @@ class SteamLogin implements SteamLoginInterface
     /**
      * @param string $redirectTo
      *
+     * @return \kanalumaddela\LaravelSteamLogin\SteamLogin
      * @throws InvalidArgumentException
      *
-     * @return \kanalumaddela\LaravelSteamLogin\SteamLogin
      */
     public function setRedirectTo(string $redirectTo = null): self
     {
-        if (!filter_var($redirectTo, FILTER_VALIDATE_URL) && !empty($redirectTo)) {
-            throw new InvalidArgumentException('`'.$redirectTo.'` is not a valid URL');
-        }
-
         if (empty($redirectTo) || in_array($redirectTo, [$this->loginRoute, $this->authRoute])) {
             $redirectTo = url('/');
+        } elseif (!filter_var($redirectTo, FILTER_VALIDATE_URL)) {
+            throw new InvalidArgumentException('$redirectTo: `'.$redirectTo.'` is not a valid URL');
         }
 
         $this->redirectTo = $redirectTo;
@@ -258,8 +262,14 @@ class SteamLogin implements SteamLoginInterface
      *
      * @return \kanalumaddela\LaravelSteamLogin\SteamLogin
      */
-    public function setRealm(string $realm): self
+    public function setRealm(?string $realm = null): self
     {
+        if (empty($realm)) {
+            $realm = (self::$isHttps ? 'https' : 'http').'://'.$this->request->getHttpHost();
+        } elseif (!filter_var($realm, FILTER_VALIDATE_URL)) {
+            throw new InvalidArgumentException('$realm: `'.$realm.'` is not a valid URL.');
+        }
+
         $this->realm = $realm;
 
         return $this;
@@ -268,9 +278,9 @@ class SteamLogin implements SteamLoginInterface
     /**
      * Check if login is valid.
      *
+     * @return bool
      * @throws Exception
      *
-     * @return bool
      */
     public function validated(): bool
     {
@@ -363,19 +373,25 @@ class SteamLogin implements SteamLoginInterface
      *
      * @param bool $info
      *
-     * @throws Exception
-     *
-     * @return SteamUser
+     * @return \kanalumaddela\LaravelSteamLogin\SteamUser
      */
-    public function getPlayer(bool $info = false): SteamUser
+    public function getSteamUser(bool $info = false): SteamUser
     {
         return $info ? $this->steamUser->getUserInfo() : $this->steamUser;
     }
 
     /**
+     * {@inheritdoc}
+     */
+    public function getPlayer(bool $info = false): SteamUser
+    {
+        return $this->getSteamUser($info);
+    }
+
+    /**
      * Return Guzzle response of POSTing to Steam's OpenID.
      *
-     * @return Response
+     * @return \GuzzleHttp\Psr7\Response
      */
     public function getResponse(): Response
     {
@@ -429,9 +445,11 @@ class SteamLogin implements SteamLoginInterface
     /**
      * Check if query parameters are valid post steam login.
      *
+     * @param \Illuminate\Http\Request|null $request
+     *
      * @return bool
      */
-    protected function validRequest(): bool
+    public function validRequest(?Request $request = null): bool
     {
         $params = [
             'openid_assoc_handle',
@@ -440,6 +458,6 @@ class SteamLogin implements SteamLoginInterface
             'openid_signed',
         ];
 
-        return $this->request->filled($params);
+        return $request ? $request->filled($params) : $this->request->filled($params);
     }
 }

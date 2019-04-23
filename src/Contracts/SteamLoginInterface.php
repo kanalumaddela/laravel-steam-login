@@ -10,15 +10,11 @@
  * @license   MIT
  */
 
-namespace kanalumaddela\LaravelSteamLogin\Interfaces;
+namespace kanalumaddela\LaravelSteamLogin\Contracts;
 
 use Illuminate\Http\RedirectResponse;
+use Illuminate\Http\Request;
 
-/**
- * Use \kanalumaddela\LaravelSteamLogin\Contracts\SteamLoginInterface
- *
- * @deprecated
- */
 interface SteamLoginInterface
 {
     /**
@@ -31,7 +27,7 @@ interface SteamLoginInterface
     /**
      * Redirect the user to steam's login page.
      *
-     * @return \Illuminate\Http\RedirectResponse
+     * @return RedirectResponse
      */
     public function redirectToSteam(): RedirectResponse;
 
@@ -41,4 +37,13 @@ interface SteamLoginInterface
      * @return string
      */
     public function getLoginUrl(): string;
+
+    /**
+     * Is the current request valid for
+     *
+     * @param \Illuminate\Http\Request|null $request
+     *
+     * @return bool
+     */
+    public function validRequest(?Request $request = null): bool;
 }
