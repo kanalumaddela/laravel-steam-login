@@ -18,6 +18,6 @@ class SteamLogin extends Facade
 {
     protected static function getFacadeAccessor()
     {
-        return SteamLogin::class;
+        return self::class;
     }
 }
