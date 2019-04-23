@@ -68,9 +68,9 @@ abstract class AbstractSteamLoginController extends Controller implements SteamL
     /**
      * Keep for deprecation purposes.
      *
-     * @return \Illuminate\Http\RedirectResponse|mixed
-     *
      * @throws \Exception
+     *
+     * @return \Illuminate\Http\RedirectResponse|mixed
      *
      * @deprecated
      */
