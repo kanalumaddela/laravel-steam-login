@@ -39,7 +39,7 @@
                 "kanalumaddela\\LaravelSteamLogin\\SteamLoginServiceProvider"
             ],
             "aliases": {
-                "SteamLogin": "kanalumaddela\\LaravelSteamLogin\\SteamLoginFacade"
+                "SteamLogin": "kanalumaddela\\LaravelSteamLogin\\Facades\\SteamLogin"
             }
         }
     },

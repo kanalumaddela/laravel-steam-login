@@ -10,11 +10,11 @@
  * @license   MIT
  */
 
-namespace kanalumaddela\LaravelSteamLogin;
+namespace kanalumaddela\LaravelSteamLogin\Facades;
 
 use Illuminate\Support\Facades\Facade;
 
-class SteamLoginFacade extends Facade
+class SteamLogin extends Facade
 {
     protected static function getFacadeAccessor()
     {

@@ -19,8 +19,6 @@ use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use InvalidArgumentException;
 use kanalumaddela\LaravelSteamLogin\Contracts\SteamLoginInterface;
-use const FILTER_VALIDATE_URL;
-use const PHP_URL_HOST;
 use function config;
 use function explode;
 use function filter_var;
@@ -36,6 +34,8 @@ use function sprintf;
 use function strpos;
 use function trigger_error;
 use function url;
+use const FILTER_VALIDATE_URL;
+use const PHP_URL_HOST;
 
 class SteamLogin implements SteamLoginInterface
 {
@@ -233,9 +233,9 @@ class SteamLogin implements SteamLoginInterface
     /**
      * @param string $redirectTo
      *
+     * @return \kanalumaddela\LaravelSteamLogin\SteamLogin
      * @throws InvalidArgumentException
      *
-     * @return \kanalumaddela\LaravelSteamLogin\SteamLogin
      */
     public function setRedirectTo(string $redirectTo = null): self
     {
@@ -278,9 +278,9 @@ class SteamLogin implements SteamLoginInterface
     /**
      * Check if login is valid.
      *
+     * @return bool
      * @throws Exception
      *
-     * @return bool
      */
     public function validated(): bool
     {
@@ -313,25 +313,28 @@ class SteamLogin implements SteamLoginInterface
         }
 
         $params = [
-            'openid.sig'  => $this->request->query('openid_sig'),
-            'openid.ns'   => self::OPENID_SPECS,
-            'openid.mode' => 'check_authentication',
+            'openid.sig'    => $this->request->query('openid_sig'),
+            'openid.ns'     => self::OPENID_SPECS,
+            'openid.mode'   => 'check_authentication',
+            'openid.signed' => $this->request->query('openid_signed'),
         ];
 
-        foreach (explode(',', $this->request->query('openid_signed')) as $param) {
+        foreach (explode(',', $params['openid.signed']) as $param) {
+            if ($param === 'signed') {
+                continue;
+            }
+
             $params['openid.'.$param] = $this->request->query('openid_'.$param);
         }
 
         $this->response = $this->guzzle->post(self::OPENID_STEAM, [
-            'connect_timeout' => config('steam-login.timeout'),
-            'form_params'     => $params,
-            'timeout',
+            'timeout'     => config('steam-login.timeout'),
+            'form_params' => $params,
         ]);
 
-        $this->openIdResponse = $result = $this->response->getBody();
-        $result = $result->getContents();
+        $this->openIdResponse = $result = $this->response->getBody()->getContents();
 
-        return preg_match("#is_valid\s*:\s*true#i", $result) === 1 && preg_match('#^https?://steamcommunity.com/openid/id/([0-9]{17,25})#', $this->request->query('openid_claimed_id'), $matches) === 1 ? (is_numeric($matches[1]) ? $matches[1] : null) : null;
+        return preg_match('#is_valid\s*:\s*true#i', $result) === 1 && preg_match('#^https?://steamcommunity.com/openid/id/([0-9]{17,25})#', $this->request->query('openid_claimed_id'), $matches) === 1 ? (is_numeric($matches[1]) ? $matches[1] : null) : null;
     }
 
     /**
