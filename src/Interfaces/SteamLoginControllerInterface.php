@@ -16,6 +16,11 @@ use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use kanalumaddela\LaravelSteamLogin\SteamUser;
 
+/**
+ * Use \kanalumaddela\LaravelSteamLogin\Contracts\SteamLoginControllerInterface.
+ *
+ * @deprecated
+ */
 interface SteamLoginControllerInterface
 {
     /**

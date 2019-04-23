@@ -16,7 +16,7 @@ use Exception;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Routing\Controller;
-use kanalumaddela\LaravelSteamLogin\Interfaces\SteamLoginControllerInterface;
+use kanalumaddela\LaravelSteamLogin\Contracts\SteamLoginControllerInterface;
 use kanalumaddela\LaravelSteamLogin\SteamLogin;
 
 abstract class AbstractSteamLoginController extends Controller implements SteamLoginControllerInterface
@@ -68,9 +68,9 @@ abstract class AbstractSteamLoginController extends Controller implements SteamL
     /**
      * Keep for deprecation purposes.
      *
-     * @throws \Exception
-     *
      * @return \Illuminate\Http\RedirectResponse|mixed
+     *
+     * @throws \Exception
      *
      * @deprecated
      */

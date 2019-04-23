@@ -48,24 +48,9 @@ return [
     'controller'     => env('STEAM_LOGIN_CONTROLLER'),
 
     /*
-     * Use both migrations and routes?
-     * *setting this to true wiil override the options below it
-     *
-     * @var boolean
-     */
-    'use_all'        => env('STEAM_LOGIN_USE_ALL', false),
-
-    /*
      * Use the included routes?
      *
      * @var boolean
      */
     'use_routes'     => env('STEAM_LOGIN_USE_ROUTES', false),
-
-    /*
-     * Use the included migrations
-     *
-     * @var boolean
-     */
-    'use_migrations' => env('STEAM_LOGIN_USE_MIGRATIONS', false),
 ];

@@ -19,8 +19,6 @@ use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use InvalidArgumentException;
 use kanalumaddela\LaravelSteamLogin\Contracts\SteamLoginInterface;
-use const FILTER_VALIDATE_URL;
-use const PHP_URL_HOST;
 use function config;
 use function explode;
 use function filter_var;
@@ -36,6 +34,8 @@ use function sprintf;
 use function strpos;
 use function trigger_error;
 use function url;
+use const FILTER_VALIDATE_URL;
+use const PHP_URL_HOST;
 
 class SteamLogin implements SteamLoginInterface
 {
@@ -308,7 +308,7 @@ class SteamLogin implements SteamLoginInterface
      */
     public function validate(): ?string
     {
-        if ($this->request->query('openid_claimed_id') !== $this->request->query('openid_identity')) {
+        if ($this->request->query('openid_claimed_id') !== $this->request->query('openid_identity') || !$this->request->has('openid_signed')) {
             return null;
         }
 
@@ -325,6 +325,7 @@ class SteamLogin implements SteamLoginInterface
         $this->response = $this->guzzle->post(self::OPENID_STEAM, [
             'connect_timeout' => config('steam-login.timeout'),
             'form_params'     => $params,
+            'timeout',
         ]);
 
         $this->openIdResponse = $result = $this->response->getBody();

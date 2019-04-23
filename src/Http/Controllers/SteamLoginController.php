@@ -12,8 +12,10 @@
 
 namespace kanalumaddela\LaravelSteamLogin\Http\Controllers;
 
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use kanalumaddela\LaravelSteamLogin\SteamUser;
+use const JSON_PRETTY_PRINT;
 
 class SteamLoginController extends AbstractSteamLoginController
 {
@@ -27,5 +29,6 @@ class SteamLoginController extends AbstractSteamLoginController
      */
     public function authenticated(Request $request, SteamUser $steamUser)
     {
+        return JsonResponse::create($steamUser->getUserInfo())->setEncodingOptions(JSON_PRETTY_PRINT);
     }
 }

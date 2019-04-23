@@ -38,9 +38,6 @@ class SteamLoginServiceProvider extends ServiceProvider
             if (config('steam-login.use_all') || config('steam-login.use_routes')) {
                 $this->loadRoutesFrom(__DIR__.'/../routes/steam-login.php');
             }
-            if (config('steam-login.use_all') || config('steam-login.use_migrations')) {
-                $this->loadMigrationsFrom(__DIR__.'/../migrations');
-            }
         } else {
             $this->publishLumenConfig();
         }
@@ -69,7 +66,7 @@ class SteamLoginServiceProvider extends ServiceProvider
      */
     public function register()
     {
-        $this->app->singleton('SteamLogin', function ($app) {
+        $this->app->singleton(SteamLogin::class, function ($app) {
             return new SteamLogin($app);
         });
     }

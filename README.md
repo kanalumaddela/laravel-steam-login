@@ -38,6 +38,8 @@ php artisan make:controller Auth\SteamLoginController
 namespace App\Http\Controllers\Auth;
 
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Hash;
 use kanalumaddela\LaravelSteamLogin\Http\Controllers\AbstractSteamLoginController;
 use kanalumaddela\LaravelSteamLogin\SteamUser;
 
@@ -48,22 +50,24 @@ class SteamLoginController extends AbstractSteamLoginController
      */
     public function authenticated(Request $request, SteamUser $steamUser)
     {
-        // Implement auth logic here
-        // example assumes you have a `steam_account_id` column in your `users` table
+        // Auth logic goes here
+        // this example assumes you have a `steam_account_id` column in your `users` table
         $user = \App\User::where('steam_account_id', $steamUser->accountId)->first();
 
         if (!$user) {
             $steamUser->getUserInfo(); // retrieve and set user info pulled from steam
 
+            // make sure `steam_account_id` is in your $fillable array
             $user = \App\User::create([
                 'name'             => $steamUser->name,
                 'steam_account_id' => $steamUser->accountId,
+                'password'         => Hash::make(Str::random(24)), // force a random password
             ]);
         }
 
         // login user
         // do not return anything so AbstractSteamLoginController handles redirection to the previous page the user was on before logging in
-        \Illuminate\Support\Facades\Auth::login($user);
+        Auth::login($user);
     }
 }
 

@@ -9,10 +9,12 @@
  * @copyright Copyright (c) 2018-2019 Maddela
  * @license   MIT
  */
+
 use Illuminate\Support\Facades\Route;
 use kanalumaddela\LaravelSteamLogin\Http\Controllers\SteamLoginController;
 
-$steamLoginControllerClass = class_exists('App\Http\Controllers\Auth\SteamLoginController') ? 'App\Http\Controllers\Auth\SteamLoginController' : SteamLoginController::class;
+$steamLoginConfigClass = config('steam-login.controller', 'App\Http\Controllers\Auth\SteamLoginController');
+$steamLoginControllerClass = class_exists($steamLoginConfigClass) ? $steamLoginConfigClass : SteamLoginController::class;
 
 Route::get('login/steam', [$steamLoginControllerClass, 'login'])->name('login.steam');
 Route::get('auth/steam', [$steamLoginControllerClass, 'authenticate'])->name('auth.steam');
