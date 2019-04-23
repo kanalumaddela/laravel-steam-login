@@ -15,7 +15,7 @@ namespace kanalumaddela\LaravelSteamLogin\Interfaces;
 use Illuminate\Http\RedirectResponse;
 
 /**
- * Use \kanalumaddela\LaravelSteamLogin\Contracts\SteamLoginInterface
+ * Use \kanalumaddela\LaravelSteamLogin\Contracts\SteamLoginInterface.
  *
  * @deprecated
  */
