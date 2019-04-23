@@ -39,7 +39,7 @@ interface SteamLoginInterface
     public function getLoginUrl(): string;
 
     /**
-     * Is the current request valid for
+     * Is the current request valid for.
      *
      * @param \Illuminate\Http\Request|null $request
      *

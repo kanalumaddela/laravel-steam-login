@@ -19,6 +19,8 @@ use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use InvalidArgumentException;
 use kanalumaddela\LaravelSteamLogin\Contracts\SteamLoginInterface;
+use const FILTER_VALIDATE_URL;
+use const PHP_URL_HOST;
 use function config;
 use function explode;
 use function filter_var;
@@ -34,8 +36,6 @@ use function sprintf;
 use function strpos;
 use function trigger_error;
 use function url;
-use const FILTER_VALIDATE_URL;
-use const PHP_URL_HOST;
 
 class SteamLogin implements SteamLoginInterface
 {
@@ -233,9 +233,9 @@ class SteamLogin implements SteamLoginInterface
     /**
      * @param string $redirectTo
      *
-     * @return \kanalumaddela\LaravelSteamLogin\SteamLogin
      * @throws InvalidArgumentException
      *
+     * @return \kanalumaddela\LaravelSteamLogin\SteamLogin
      */
     public function setRedirectTo(string $redirectTo = null): self
     {
@@ -278,9 +278,9 @@ class SteamLogin implements SteamLoginInterface
     /**
      * Check if login is valid.
      *
-     * @return bool
      * @throws Exception
      *
+     * @return bool
      */
     public function validated(): bool
     {
