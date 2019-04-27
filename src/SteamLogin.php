@@ -19,8 +19,6 @@ use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use InvalidArgumentException;
 use kanalumaddela\LaravelSteamLogin\Contracts\SteamLoginInterface;
-use const FILTER_VALIDATE_URL;
-use const PHP_URL_HOST;
 use function config;
 use function explode;
 use function filter_var;
@@ -36,6 +34,9 @@ use function sprintf;
 use function strpos;
 use function trigger_error;
 use function url;
+use const FILTER_VALIDATE_DOMAIN;
+use const FILTER_VALIDATE_URL;
+use const PHP_URL_HOST;
 
 class SteamLogin implements SteamLoginInterface
 {
@@ -184,7 +185,7 @@ class SteamLogin implements SteamLoginInterface
     }
 
     /**
-     * Build the login url with.
+     * Build the login url with optional openid.return_to and ?redirect
      *
      * @param string|null $return
      * @param string|null $redirectTo
@@ -213,13 +214,14 @@ class SteamLogin implements SteamLoginInterface
         $this->setRedirectTo($redirectTo);
 
         $params = self::$openIdParams;
+        $this->realm = $this->getRealm();
 
         if (parse_url($this->realm, PHP_URL_HOST) !== parse_url($return, PHP_URL_HOST)) {
             throw new InvalidArgumentException(sprintf('realm: `%s` and return_to: `%s` do not have matching hosts', $this->realm, $return));
         }
 
         $params['openid.realm'] = $this->realm;
-        $params['openid.return_to'] = $return.(self::$isLaravel ? '?'.http_build_query(['redirect' => $this->redirectTo]) : '');
+        $params['openid.return_to'] = $return.(self::$isLaravel && !empty($redirectTo) ? '?'.http_build_query(['redirect' => $this->redirectTo]) : '');
 
         return self::OPENID_STEAM.'?'.http_build_query($params);
     }
@@ -267,9 +269,22 @@ class SteamLogin implements SteamLoginInterface
      */
     public function getRedirectTo(): string
     {
+        if ($this->request->has('redirect')) {
+            $this->setRedirectTo($this->request->query('redirect'));
+        } elseif (empty($this->redirectTo)) {
+            $this->setRedirectTo();
+        }
+
         return $this->redirectTo;
     }
 
+    /**
+     * Set the Guzzle instance to use.
+     *
+     * @param \GuzzleHttp\Client $guzzle
+     *
+     * @return \kanalumaddela\LaravelSteamLogin\SteamLogin
+     */
     public function setGuzzle(GuzzleClient $guzzle): self
     {
         $this->guzzle = $guzzle;
@@ -278,6 +293,8 @@ class SteamLogin implements SteamLoginInterface
     }
 
     /**
+     * Set the openid.realm either by passing the URL or the domain only.
+     *
      * @param string $realm
      *
      * @return \kanalumaddela\LaravelSteamLogin\SteamLogin
@@ -286,13 +303,31 @@ class SteamLogin implements SteamLoginInterface
     {
         if (empty($realm)) {
             $realm = (self::$isHttps ? 'https' : 'http').'://'.$this->request->getHttpHost();
-        } elseif (!filter_var($realm, FILTER_VALIDATE_URL)) {
+        }
+
+        if (filter_var($realm, FILTER_VALIDATE_DOMAIN) !== false) {
+            $realm = (self::$isHttps ? 'https' : 'http').'://'.$realm;
+        }
+
+        if (!filter_var($realm, FILTER_VALIDATE_URL)) {
             throw new InvalidArgumentException('$realm: `'.$realm.'` is not a valid URL.');
         }
 
         $this->realm = $realm;
 
         return $this;
+    }
+
+    /**
+     * @return string
+     */
+    public function getRealm(): string
+    {
+        if (empty($this->realm)) {
+            $this->setRealm();
+        }
+
+        return $this->realm;
     }
 
     /**
@@ -375,7 +410,7 @@ class SteamLogin implements SteamLoginInterface
      */
     public function previousPage(): RedirectResponse
     {
-        return redirect($this->redirectTo);
+        return redirect($this->getRedirectTo());
     }
 
     /**
@@ -443,6 +478,25 @@ class SteamLogin implements SteamLoginInterface
     }
 
     /**
+     * Check if query parameters are valid post steam login.
+     *
+     * @param \Illuminate\Http\Request|null $request
+     *
+     * @return bool
+     */
+    public function validRequest(?Request $request = null): bool
+    {
+        $params = [
+            'openid_assoc_handle',
+            'openid_claimed_id',
+            'openid_sig',
+            'openid_signed',
+        ];
+
+        return $request ? $request->filled($params) : $this->request->filled($params);
+    }
+
+    /**
      * Returns Steam Login button with link.
      *
      * @param string $type
@@ -464,24 +518,5 @@ class SteamLogin implements SteamLoginInterface
     public static function button(string $type = 'small'): string
     {
         return 'https://steamcommunity-a.akamaihd.net/public/images/signinthroughsteam/sits_0'.($type === 'small' ? 1 : 2).'.png';
-    }
-
-    /**
-     * Check if query parameters are valid post steam login.
-     *
-     * @param \Illuminate\Http\Request|null $request
-     *
-     * @return bool
-     */
-    public function validRequest(?Request $request = null): bool
-    {
-        $params = [
-            'openid_assoc_handle',
-            'openid_claimed_id',
-            'openid_sig',
-            'openid_signed',
-        ];
-
-        return $request ? $request->filled($params) : $this->request->filled($params);
     }
 }

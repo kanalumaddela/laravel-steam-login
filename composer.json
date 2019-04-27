@@ -15,7 +15,7 @@
     "authors": [
         {
             "name": "Samuel Maddela",
-            "email": "github@maddela.org",
+            "email": "git@maddela.org",
             "homepage": "https://www.maddela.org",
             "role": "Developer"
         }
@@ -33,6 +33,11 @@
             "kanalumaddela\\LaravelSteamLogin\\": "src/"
         }
     },
+    "autoload-dev": {
+        "psr-4": {
+            "kanalumaddela\\LaravelSteamLogin\\Tests\\": "tests/"
+        }
+    },
     "extra": {
         "laravel": {
             "providers": [
@@ -44,6 +49,7 @@
         }
     },
     "require-dev": {
-        "orchestra/testbench": "^3.8"
+        "orchestra/testbench": "^3.8",
+        "phpunit/phpunit": "^8.1"
     }
 }
