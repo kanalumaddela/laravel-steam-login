@@ -13,7 +13,6 @@
 namespace kanalumaddela\LaravelSteamLogin;
 
 use Illuminate\Support\ServiceProvider;
-use function config;
 use function config_path;
 use function copy;
 use function file_exists;
@@ -30,14 +29,8 @@ class SteamLoginServiceProvider extends ServiceProvider
      */
     public function boot()
     {
-        $isLaravel = strpos(get_class($this->app), 'Lumen') === false;
-
-        if ($isLaravel) {
+        if (strpos(get_class($this->app), 'Lumen') === false) {
             $this->publishLaravelConfig();
-
-            if (config('steam-login.use_all') || config('steam-login.use_routes')) {
-                $this->loadRoutesFrom(__DIR__.'/../routes/steam-login.php');
-            }
         } else {
             $this->publishLumenConfig();
         }

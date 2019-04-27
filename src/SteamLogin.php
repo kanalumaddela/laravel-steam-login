@@ -19,8 +19,6 @@ use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use InvalidArgumentException;
 use kanalumaddela\LaravelSteamLogin\Contracts\SteamLoginInterface;
-use const FILTER_VALIDATE_URL;
-use const PHP_URL_HOST;
 use function config;
 use function explode;
 use function filter_var;
@@ -36,6 +34,8 @@ use function sprintf;
 use function strpos;
 use function trigger_error;
 use function url;
+use const FILTER_VALIDATE_URL;
+use const PHP_URL_HOST;
 
 class SteamLogin implements SteamLoginInterface
 {
@@ -66,6 +66,13 @@ class SteamLogin implements SteamLoginInterface
      * @var bool
      */
     protected static $isHttps;
+
+    /**
+     * The app's original http scheme in case of reverse proxy with ssl.
+     *
+     * @var string
+     */
+    protected static $originalScheme;
 
     /**
      * Default OpenID form params.
@@ -171,19 +178,9 @@ class SteamLogin implements SteamLoginInterface
         $this->request = $app->get('request');
         self::$isLaravel = strpos(get_class($app), 'Lumen') === false;
         self::$isHttps = $this->request->server('HTTPS', 'off') !== 'off' || $this->request->server('SERVER_PORT') == 443 || $this->request->server('HTTP_X_FORWARDED_PROTO') === 'https';
-
-        $originalScheme = $this->request->getScheme();
-        if (self::$isHttps && !$this->request->isSecure() && $originalScheme !== 'https') {
-            $this->app->get('url')->forceScheme('https');
-        }
+        self::$originalScheme = $this->request->getScheme();
 
         $this->setGuzzle(new GuzzleClient())->setRealm();
-
-        $this->loginRoute = route(config('steam-login.routes.login'));
-        $this->authRoute = route(config('steam-login.routes.auth'));
-        $this->loginUrl = $this->buildLoginUrl($this->authRoute);
-
-        $this->app->get('url')->forceScheme($originalScheme);
     }
 
     /**
@@ -196,6 +193,15 @@ class SteamLogin implements SteamLoginInterface
      */
     public function buildLoginUrl(?string $return = null, ?string $redirectTo = null): string
     {
+        if (self::$isHttps && !$this->request->isSecure() && self::$originalScheme !== 'https') {
+            $this->app->get('url')->forceScheme('https');
+        }
+
+        $this->loginRoute = route(config('steam-login.routes.login'));
+        $this->authRoute = route(config('steam-login.routes.auth'));
+
+        $this->app->get('url')->forceScheme(self::$originalScheme);
+
         if (empty($return) && !empty($this->authRoute)) {
             $return = $this->authRoute;
         }
@@ -233,13 +239,17 @@ class SteamLogin implements SteamLoginInterface
     /**
      * @param string $redirectTo
      *
+     * @return \kanalumaddela\LaravelSteamLogin\SteamLogin
      * @throws InvalidArgumentException
      *
-     * @return \kanalumaddela\LaravelSteamLogin\SteamLogin
      */
     public function setRedirectTo(string $redirectTo = null): self
     {
-        if (empty($redirectTo) || in_array($redirectTo, [$this->loginRoute, $this->authRoute])) {
+        if (empty($redirectTo)) {
+            $redirectTo = url()->previous();
+        }
+
+        if (in_array($redirectTo, [$this->loginRoute, $this->authRoute])) {
             $redirectTo = url('/');
         } elseif (!filter_var($redirectTo, FILTER_VALIDATE_URL)) {
             throw new InvalidArgumentException('$redirectTo: `'.$redirectTo.'` is not a valid URL');
@@ -278,9 +288,9 @@ class SteamLogin implements SteamLoginInterface
     /**
      * Check if login is valid.
      *
+     * @return bool
      * @throws Exception
      *
-     * @return bool
      */
     public function validated(): bool
     {

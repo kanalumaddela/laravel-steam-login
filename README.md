@@ -18,15 +18,18 @@ Make sure you have made/performed your migrations along with updating your `User
 
 ## Quick Setup (2.x, Laravel 5.6+)
 
+1. Install library
 ```
 compose require kanalumaddela/laravel-steam-login
 php artisan vendor:publish --force --provider kanalumaddela\LaravelSteamLogin\SteamLoginServiceProvider
 ```
-`.env`
-```
-# ...
-STEAM_LOGIN_USE_ROUTES=true
-# ...
+
+2. Add routes
+
+`routes/web.php`
+```php
+// assumes you've already imported the class
+SteamLogin::routes(['controller' => SteamLoginController::class]);
 ```
 ```
 php artisan make:controller Auth\SteamLoginController
@@ -51,7 +54,7 @@ class SteamLoginController extends AbstractSteamLoginController
     public function authenticated(Request $request, SteamUser $steamUser)
     {
         // auth logic goes here
-        // register/login user whatever
+        // e.g. $user = User::where('steam_account_id', $steamUser->accountId)->first();
     }
 }
 ```

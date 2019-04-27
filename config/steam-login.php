@@ -18,7 +18,7 @@ return [
      *
      * @var string
      */
-    'api_key'        => env('STEAM_LOGIN_API_KEY', env('STEAM_API_KEY', null)),
+    'api_key' => env('STEAM_LOGIN_API_KEY', env('STEAM_API_KEY', null)),
 
     /*
      * Method of retrieving player's profile data.
@@ -26,31 +26,22 @@ return [
      *
      * @var string
      */
-    'method'         => env('STEAM_LOGIN_PROFILE_METHOD', 'xml'),
+    'method'  => env('STEAM_LOGIN_PROFILE_DATA_METHOD', env('STEAM_LOGIN_PROFILE_METHOD', 'xml')),
 
     /*
      * Timeout (seconds) for any requests performed
      *
      * @var int
      */
-    'timeout'        => env('STEAM_LOGIN_TIMEOUT', 5),
+    'timeout' => env('STEAM_LOGIN_TIMEOUT', 5),
 
     /*
      * Login/Auth route names/paths
      *
      * @var array
      */
-    'routes'         => [
+    'routes'  => [
         'login' => env('STEAM_LOGIN_ROUTE', env('STEAM_LOGIN_ROUTE_NAME', 'login.steam')),
         'auth'  => env('STEAM_LOGIN_AUTH_ROUTE', env('STEAM_AUTH_ROUTE_NAME', 'auth.steam')),
     ],
-
-    'controller'     => env('STEAM_LOGIN_CONTROLLER'),
-
-    /*
-     * Use the included routes?
-     *
-     * @var boolean
-     */
-    'use_routes'     => env('STEAM_LOGIN_USE_ROUTES', false),
 ];
