@@ -19,9 +19,6 @@ use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use InvalidArgumentException;
 use kanalumaddela\LaravelSteamLogin\Contracts\SteamLoginInterface;
-use const FILTER_VALIDATE_DOMAIN;
-use const FILTER_VALIDATE_URL;
-use const PHP_URL_HOST;
 use function config;
 use function explode;
 use function filter_var;
@@ -34,9 +31,13 @@ use function preg_match;
 use function redirect;
 use function route;
 use function sprintf;
+use function str_replace;
 use function strpos;
 use function trigger_error;
 use function url;
+use const FILTER_VALIDATE_DOMAIN;
+use const FILTER_VALIDATE_URL;
+use const PHP_URL_HOST;
 
 class SteamLogin implements SteamLoginInterface
 {
@@ -190,6 +191,8 @@ class SteamLogin implements SteamLoginInterface
      * @param string|null $return
      * @param string|null $redirectTo
      *
+     * @throws \InvalidArgumentException
+     *
      * @return string
      */
     public function buildLoginUrl(?string $return = null, ?string $redirectTo = null): string
@@ -221,7 +224,7 @@ class SteamLogin implements SteamLoginInterface
         }
 
         $params['openid.realm'] = $this->realm;
-        $params['openid.return_to'] = $return.(self::$isLaravel && !empty($redirectTo) ? '?'.http_build_query(['redirect' => $this->redirectTo]) : '');
+        $params['openid.return_to'] = $return.(self::$isLaravel && !empty($this->redirectTo) ? '?'.http_build_query(['redirect' => $this->redirectTo]) : '');
 
         return self::OPENID_STEAM.'?'.http_build_query($params);
     }
@@ -243,7 +246,7 @@ class SteamLogin implements SteamLoginInterface
      *
      * @throws InvalidArgumentException
      *
-     * @return \kanalumaddela\LaravelSteamLogin\SteamLogin
+     *@return \kanalumaddela\LaravelSteamLogin\SteamLogin
      */
     public function setRedirectTo(string $redirectTo = null): self
     {
@@ -301,13 +304,13 @@ class SteamLogin implements SteamLoginInterface
      */
     public function setRealm(?string $realm = null): self
     {
-        if (empty($realm)) {
-            $realm = (self::$isHttps ? 'https' : 'http').'://'.$this->request->getHttpHost();
+        $host = str_replace(['https://', 'http://'], '', $realm);
+
+        if (empty($host) || filter_var($host, FILTER_VALIDATE_DOMAIN) === false) {
+            $host = $this->request->getHttpHost();
         }
 
-        if (filter_var($realm, FILTER_VALIDATE_DOMAIN) !== false) {
-            $realm = (self::$isHttps ? 'https' : 'http').'://'.$realm;
-        }
+        $realm = (self::$isHttps ? 'https' : 'http').'://'.$host;
 
         if (!filter_var($realm, FILTER_VALIDATE_URL)) {
             throw new InvalidArgumentException('$realm: `'.$realm.'` is not a valid URL.');
