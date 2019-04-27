@@ -20,7 +20,6 @@ use kanalumaddela\LaravelSteamLogin\SteamUser;
  */
 class SteamLoginHandlerController extends AbstractSteamLoginController
 {
-
     /**
      * {@inheritdoc}
      */
