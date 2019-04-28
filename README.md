@@ -20,7 +20,7 @@ Make sure you have made/performed your migrations along with updating your `User
 
 1. Install library
 ```
-compose require kanalumaddela/laravel-steam-login
+composer require kanalumaddela/laravel-steam-login
 
 php artisan vendor:publish --force --provider kanalumaddela\LaravelSteamLogin\SteamLoginServiceProvider
 ```
