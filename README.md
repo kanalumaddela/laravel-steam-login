@@ -29,7 +29,11 @@ php artisan vendor:publish --force --provider kanalumaddela\LaravelSteamLogin\St
 
 `routes/web.php`
 ```php
-// assumes you've already imported the class
+use App\Http\Controllers\Auth\SteamLoginController;
+use kanalumaddela\LaravelSteamLogin\Facades\SteamLogin;
+
+//...
+
 SteamLogin::routes(['controller' => SteamLoginController::class]);
 ```
 ```
