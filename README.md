@@ -16,7 +16,7 @@ Make sure you have made/performed your migrations along with updating your `User
 | 1.x     | 7.0+        | 5.5+            | [Docs](https://github.com/kanalumaddela/laravel-steam-login/wiki/1.x) |
 | 2.x     | 7.1+        | 5.6+            | [Docs](https://github.com/kanalumaddela/laravel-steam-login/wiki/2.x) |
 
-## ~~Quick Setup (2.x, Laravel 5.6+)~~ [INCOMPLETE REFER TO DOCS]
+## Quick Setup (2.x, Laravel 5.6+)
 
 1. Install library
 ```
