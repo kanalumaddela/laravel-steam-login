@@ -38,7 +38,9 @@ class SteamLoginServiceProvider extends ServiceProvider
 
     protected function publishLaravelConfig()
     {
-        $this->publishes([__DIR__.'/../config/steam-login.php' => config_path('steam-login.php')]);
+        $this->publishes([
+            __DIR__.'/../config/steam-login.php' => config_path('steam-login.php'),
+        ]);
     }
 
     protected function publishLumenConfig()

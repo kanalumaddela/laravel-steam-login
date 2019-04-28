@@ -385,7 +385,7 @@ class SteamLogin implements SteamLoginInterface
             $params['openid.'.$param] = $this->request->query('openid_'.$param);
         }
 
-        $this->response = $this->guzzle->post(self::OPENID_STEAM, [
+        $this->response = $this->guzzle->post($this->request->query('openid_op_endpoint'), [
             'timeout'     => config('steam-login.timeout'),
             'form_params' => $params,
         ]);
