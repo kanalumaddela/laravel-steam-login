@@ -14,9 +14,13 @@
     "require": {
         "php": "^7.0",
         "ext-curl": "*",
-        "illuminate/http": "5.*",
-        "illuminate/routing": "5.*",
-        "illuminate/support": "5.*"
+        "ext-json": "*",
+        "ext-libxml": "*",
+        "ext-simplexml": "*",
+        "laravel/framework": "5.5.x|5.6.x"
+    },
+    "require-dev": {
+        "orchestra/testbench": "^3.5"
     },
     "autoload": {
         "psr-4": {

@@ -1,8 +1,19 @@
 <?php
+/**
+ * Laravel Steam Login.
+ *
+ * @link      https://www.maddela.org
+ * @link      https://github.com/kanalumaddela/laravel-steam-login
+ *
+ * @author    kanalumaddela <git@maddela.org>
+ * @copyright Copyright (c) 2018-2019 Maddela
+ * @license   MIT
+ */
 
 namespace kanalumaddela\LaravelSteamLogin;
 
 use Illuminate\Support\ServiceProvider;
+use function config_path;
 
 class SteamLoginServiceProvider extends ServiceProvider
 {
@@ -31,7 +42,7 @@ class SteamLoginServiceProvider extends ServiceProvider
     public function register()
     {
         $this->app->singleton('steamlogin', function () {
-            return new SteamLogin($this->app->request);
+            return new SteamLogin($this->app->get('request'));
         });
     }
 }

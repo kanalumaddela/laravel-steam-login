@@ -1,4 +1,14 @@
 <?php
+/**
+ * Laravel Steam Login.
+ *
+ * @link      https://www.maddela.org
+ * @link      https://github.com/kanalumaddela/laravel-steam-login
+ *
+ * @author    kanalumaddela <git@maddela.org>
+ * @copyright Copyright (c) 2018-2019 Maddela
+ * @license   MIT
+ */
 
 namespace kanalumaddela\LaravelSteamLogin;
 
@@ -6,6 +16,26 @@ use Exception;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Config;
 use RuntimeException;
+use stdClass;
+use function curl_close;
+use function curl_exec;
+use function curl_init;
+use function curl_setopt;
+use function date;
+use function explode;
+use function get_magic_quotes_gpc;
+use function http_build_query;
+use function is_null;
+use function is_numeric;
+use function json_decode;
+use function preg_match;
+use function redirect;
+use function simplexml_load_string;
+use function sprintf;
+use function str_replace;
+use function stripslashes;
+use function ucfirst;
+use function url;
 
 class SteamLogin implements SteamLoginInterface
 {
@@ -69,7 +99,7 @@ class SteamLogin implements SteamLoginInterface
     public function __construct(Request $request)
     {
         $this->request = $request;
-        $this->player = new \stdClass();
+        $this->player = new stdClass();
         $this->return_to = url()->previous() != url()->current() ? url()->previous() : url('/');
     }
 
@@ -202,7 +232,7 @@ class SteamLogin implements SteamLoginInterface
     private function convert($steamid)
     {
         $w = $accountid = $steamid & 0xFFFFFFFF;
-        $x = ($steamid >> 56) & 0xFF;
+        //$x = ($steamid >> 56) & 0xFF;
         $y = $accountid & 1;
         $z = $accountid >> 1;
 
@@ -280,6 +310,8 @@ class SteamLogin implements SteamLoginInterface
 
     /**
      * Simple cURL GET.
+     *
+     * @param $url
      *
      * @return string
      */
