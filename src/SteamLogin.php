@@ -19,6 +19,9 @@ use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use InvalidArgumentException;
 use kanalumaddela\LaravelSteamLogin\Contracts\SteamLoginInterface;
+use const FILTER_VALIDATE_DOMAIN;
+use const FILTER_VALIDATE_URL;
+use const PHP_URL_HOST;
 use function config;
 use function explode;
 use function filter_var;
@@ -35,9 +38,6 @@ use function str_replace;
 use function strpos;
 use function trigger_error;
 use function url;
-use const FILTER_VALIDATE_DOMAIN;
-use const FILTER_VALIDATE_URL;
-use const PHP_URL_HOST;
 
 class SteamLogin implements SteamLoginInterface
 {
