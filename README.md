@@ -16,6 +16,11 @@ Make sure you have made/performed your migrations along with updating your `User
 | 1.x     | 7.0+        | 5.5+            | [Docs](https://github.com/kanalumaddela/laravel-steam-login/wiki/1.x) |
 | 2.x     | 7.1+        | 5.6+            | [Docs](https://github.com/kanalumaddela/laravel-steam-login/wiki/2.x) |
 
+## Features
+  - redirect users to the page they were on before logging in
+  - `SteamUser`class to easily retrieve a player's data
+  - included controller and routes for easy setup
+
 ## Quick Setup (2.x, Laravel 5.6+)
 
 1. Install library
