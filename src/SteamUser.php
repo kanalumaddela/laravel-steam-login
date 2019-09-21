@@ -26,6 +26,17 @@ use function simplexml_load_string;
 use function sprintf;
 use function ucfirst;
 
+/**
+ * @property string steamId
+ * @property string steamId2
+ * @property string steamId3
+ * @property string accountUrl
+ * @property string profileDataUrl
+ * @property int accountId
+ * @property string name
+ * @property string avatar
+ *
+ */
 class SteamUser extends Fluent
 {
     /**
