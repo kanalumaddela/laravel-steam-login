@@ -35,7 +35,6 @@ use function ucfirst;
  * @property int accountId
  * @property string name
  * @property string avatar
- *
  */
 class SteamUser extends Fluent
 {
