@@ -12,9 +12,9 @@
 
 namespace kanalumaddela\LaravelSteamLogin\Facades;
 
+use function array_replace_recursive;
 use Illuminate\Support\Facades\Facade;
 use kanalumaddela\LaravelSteamLogin\Http\Controllers\SteamLoginController;
-use function array_replace_recursive;
 
 class SteamLogin extends Facade
 {

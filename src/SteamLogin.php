@@ -12,24 +12,24 @@
 
 namespace kanalumaddela\LaravelSteamLogin;
 
+use function config;
 use Exception;
-use GuzzleHttp\Client as GuzzleClient;
-use GuzzleHttp\Psr7\Response;
-use Illuminate\Http\RedirectResponse;
-use Illuminate\Http\Request;
-use InvalidArgumentException;
-use kanalumaddela\LaravelSteamLogin\Contracts\SteamLoginInterface;
+use function explode;
 use const FILTER_VALIDATE_DOMAIN;
 use const FILTER_VALIDATE_URL;
-use const PHP_URL_HOST;
-use function config;
-use function explode;
 use function filter_var;
 use function get_class;
+use GuzzleHttp\Client as GuzzleClient;
+use GuzzleHttp\Psr7\Response;
 use function http_build_query;
+use Illuminate\Http\RedirectResponse;
+use Illuminate\Http\Request;
 use function in_array;
+use InvalidArgumentException;
 use function is_numeric;
+use kanalumaddela\LaravelSteamLogin\Contracts\SteamLoginInterface;
 use function parse_url;
+use const PHP_URL_HOST;
 use function preg_match;
 use function redirect;
 use function route;
