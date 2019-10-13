@@ -12,18 +12,18 @@
 
 namespace kanalumaddela\LaravelSteamLogin;
 
+use function array_merge;
+use function config;
 use GuzzleHttp\Client as GuzzleClient;
 use GuzzleHttp\Psr7\Response;
 use Illuminate\Support\Fluent;
-use SteamID;
-use const JSON_ERROR_NONE;
-use function array_merge;
-use function config;
 use function in_array;
 use function json_decode;
+use const JSON_ERROR_NONE;
 use function json_last_error;
 use function simplexml_load_string;
 use function sprintf;
+use SteamID;
 use function ucfirst;
 
 /**
