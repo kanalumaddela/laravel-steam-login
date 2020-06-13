@@ -1,12 +1,12 @@
 <?php
-/**
+/*
  * Laravel Steam Login.
  *
  * @link      https://www.maddela.org
  * @link      https://github.com/kanalumaddela/laravel-steam-login
  *
  * @author    kanalumaddela <git@maddela.org>
- * @copyright Copyright (c) 2018-2019 Maddela
+ * @copyright Copyright (c) 2018-2021 Maddela
  * @license   MIT
  */
 
@@ -41,4 +41,11 @@ interface SteamLoginControllerInterface
      * @return mixed|void
      */
     public function authenticated(Request $request, SteamUser $steamUser);
+
+    /**
+     * Called when the request fails
+     *
+     * @return mixed
+     */
+    public function authenticationFailed(Request $request);
 }

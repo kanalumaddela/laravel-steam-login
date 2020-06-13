@@ -1,12 +1,12 @@
 <?php
-/**
+/*
  * Laravel Steam Login.
  *
  * @link      https://www.maddela.org
  * @link      https://github.com/kanalumaddela/laravel-steam-login
  *
  * @author    kanalumaddela <git@maddela.org>
- * @copyright Copyright (c) 2018-2019 Maddela
+ * @copyright Copyright (c) 2018-2021 Maddela
  * @license   MIT
  */
 
@@ -58,21 +58,13 @@ abstract class AbstractSteamLoginController extends Controller implements SteamL
     }
 
     /**
-     * {@inheritdoc}
-     */
-    public function redirectToSteam(): RedirectResponse
-    {
-        return $this->steam->redirectToSteam();
-    }
-
-    /**
      * Keep for deprecation purposes.
      *
+     * @deprecated
      * @throws \Exception
      *
      * @return \Illuminate\Http\RedirectResponse|mixed
      *
-     * @deprecated
      */
     public function auth()
     {
@@ -83,19 +75,42 @@ abstract class AbstractSteamLoginController extends Controller implements SteamL
      * {@inheritdoc}
      *
      * @throws \Exception
+     * @return mixed
      */
     public function authenticate()
     {
-        if ($this->steam->validated()) {
-            $result = $this->authenticated($this->request, $this->steam->getPlayer());
+        $valid = $this->steam->validated();
 
-            if (!empty($result)) {
-                return $result;
-            }
-        } else {
-            throw new Exception('Steam Login failed. Response: '.$this->steam->getOpenIdResponse());
+        if ($valid && !empty($result = $this->authenticated($this->request, $this->steam->getPlayer()))) {
+            return $result;
+        }
+
+        if (!$valid && $this->steam->validRequest()) {
+            return $this->authenticationFailed($this->request);
+        }
+
+        if (!$this->steam->isLaravel() || $this->steam->isLaravel() && url()->previous() === route(config('steam-login.routes.auth'))) {
+            return $this->login();
         }
 
         return $this->steam->previousPage();
+    }
+
+    /**
+     * @param \Illuminate\Http\Request $request
+     *
+     * @throws \Exception
+     */
+    public function authenticationFailed(Request $request)
+    {
+        throw new Exception('Steam Login failed. Response: `'.trim($this->steam->getOpenIdResponse()).'`');
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function redirectToSteam(): RedirectResponse
+    {
+        return $this->steam->redirectToSteam();
     }
 }

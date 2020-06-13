@@ -1,4 +1,4 @@
-# Steam Auth/Login for Laravel 5.5+
+# Steam Auth/Login for Laravel 5.5+ / 6.X / 7.x
 
 [![Maintainability](https://api.codeclimate.com/v1/badges/2c8a9db3372f9c080791/maintainability)](https://codeclimate.com/github/kanalumaddela/laravel-steam-login/maintainability)
 [![Packagist](https://img.shields.io/packagist/dt/kanalumaddela/laravel-steam-login.svg?style=flat-square&maxAge=3600)](https://packagist.org/packages/kanalumaddela/laravel-steam-login)

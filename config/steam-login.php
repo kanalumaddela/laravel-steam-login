@@ -1,17 +1,17 @@
 <?php
-/**
+/*
  * Laravel Steam Login.
  *
  * @link      https://www.maddela.org
  * @link      https://github.com/kanalumaddela/laravel-steam-login
  *
  * @author    kanalumaddela <git@maddela.org>
- * @copyright Copyright (c) 2018-2019 Maddela
+ * @copyright Copyright (c) 2018-2021 Maddela
  * @license   MIT
  */
 
 return [
-    /*
+    /**
      * Steam API key used for pulling player's profile data
      *
      * @link https://steamcommunity.com/dev/apikey
@@ -20,22 +20,22 @@ return [
      */
     'api_key' => env('STEAM_LOGIN_API_KEY', env('STEAM_API_KEY', null)),
 
-    /*
+    /**
      * Method of retrieving player's profile data.
-     * Valid options: xml, api
+     * Valid options: [xml, api]
      *
      * @var string
      */
     'method'  => env('STEAM_LOGIN_PROFILE_DATA_METHOD', env('STEAM_LOGIN_PROFILE_METHOD', 'xml')),
 
-    /*
+    /**
      * Timeout (seconds) for any requests performed
      *
      * @var int
      */
     'timeout' => env('STEAM_LOGIN_TIMEOUT', 5),
 
-    /*
+    /**
      * Login/Auth route names/paths
      *
      * @var array
@@ -44,4 +44,9 @@ return [
         'login' => env('STEAM_LOGIN_ROUTE', env('STEAM_LOGIN_ROUTE_NAME', 'login.steam')),
         'auth'  => env('STEAM_LOGIN_AUTH_ROUTE', env('STEAM_AUTH_ROUTE_NAME', 'auth.steam')),
     ],
+
+    /**
+     * Whether to add ?redirect_to and automatically redirect a user
+     */
+    'redirect_to' => env('STEAM_LOGIN_ENABLE_REDIRECT_TO', true),
 ];
