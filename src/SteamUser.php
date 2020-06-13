@@ -6,25 +6,25 @@
  * @link      https://github.com/kanalumaddela/laravel-steam-login
  *
  * @author    kanalumaddela <git@maddela.org>
- * @copyright Copyright (c) 2018-2019 Maddela
+ * @copyright Copyright (c) 2018-2020 Maddela
  * @license   MIT
  */
 
 namespace kanalumaddela\LaravelSteamLogin;
 
-use function array_merge;
-use function config;
 use GuzzleHttp\Client as GuzzleClient;
 use GuzzleHttp\Psr7\Response;
 use Illuminate\Support\Fluent;
+use SteamID;
+use function array_merge;
+use function config;
 use function in_array;
 use function json_decode;
-use const JSON_ERROR_NONE;
 use function json_last_error;
 use function simplexml_load_string;
 use function sprintf;
-use SteamID;
 use function ucfirst;
+use const JSON_ERROR_NONE;
 
 /**
  * @property string steamId
@@ -162,7 +162,7 @@ class SteamUser extends Fluent
     /**
      * Retrieve a user's profile info from Steam via API or XML data.
      */
-    private function userInfo()
+    protected function userInfo()
     {
         $this->response = $this->guzzle->get($this->profileDataUrl, ['connect_timeout' => config('steam-login.timeout')]);
         $body = $this->response->getBody()->getContents();
