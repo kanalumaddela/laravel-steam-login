@@ -12,29 +12,29 @@
 
 namespace kanalumaddela\LaravelSteamLogin;
 
+use function config;
 use Exception;
+use function explode;
+use const FILTER_VALIDATE_URL;
+use function filter_var;
+use function get_class;
 use GuzzleHttp\Client as GuzzleClient;
 use GuzzleHttp\Psr7\Response;
+use function http_build_query;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Routing\UrlGenerator;
 use InvalidArgumentException;
-use kanalumaddela\LaravelSteamLogin\Contracts\SteamLoginInterface;
-use Symfony\Component\Routing\Exception\RouteNotFoundException;
-use function config;
-use function explode;
-use function filter_var;
-use function get_class;
-use function http_build_query;
 use function is_numeric;
+use kanalumaddela\LaravelSteamLogin\Contracts\SteamLoginInterface;
 use function parse_url;
+use const PHP_URL_HOST;
 use function preg_match;
 use function redirect;
 use function sprintf;
 use function strpos;
+use Symfony\Component\Routing\Exception\RouteNotFoundException;
 use function trigger_error;
-use const FILTER_VALIDATE_URL;
-use const PHP_URL_HOST;
 
 class SteamLogin implements SteamLoginInterface
 {
@@ -161,7 +161,7 @@ class SteamLogin implements SteamLoginInterface
     protected $steamUser;
 
     /**
-     * O(1) check for route URLs
+     * O(1) check for route URLs.
      *
      * @var array
      */
@@ -247,7 +247,6 @@ class SteamLogin implements SteamLoginInterface
      * @param string|null $return
      *
      * @return string
-     *
      */
     public function createLoginUrl(?string $return = null): string
     {
@@ -389,6 +388,7 @@ class SteamLogin implements SteamLoginInterface
      * Return the steamid if validated.
      *
      * @throws \GuzzleHttp\Exception\GuzzleException
+     *
      * @return string|null
      */
     public function validate(): ?string
@@ -500,7 +500,6 @@ class SteamLogin implements SteamLoginInterface
      */
     public function setRedirectTo(string $redirectTo = null): self
     {
-
         if (empty($redirectTo)) {
             $redirectTo = $this->isLaravel() ? $this->urlGenerator->previous('/') : $this->urlGenerator->to('/');
         }

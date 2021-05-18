@@ -43,7 +43,7 @@ interface SteamLoginControllerInterface
     public function authenticated(Request $request, SteamUser $steamUser);
 
     /**
-     * Called when the request fails
+     * Called when the request fails.
      *
      * @return mixed
      */
