@@ -9,10 +9,10 @@
 [![GitHub issues](https://img.shields.io/github/issues/kanalumaddela/laravel-steam-login.svg?style=flat-square)](https://github.com/kanalumaddela/laravel-steam-login/issues)
 [![GitHub license](https://img.shields.io/github/license/kanalumaddela/laravel-steam-login.svg?style=flat-square)](https://github.com/kanalumaddela/laravel-steam-login/blob/master/LICENSE)
 
-Make sure you have made/performed your migrations along with updating your `User` model if you plan to follow the
-examples. I suggest doing whatever works best for you, but certain suggestions should be followed.
+Make sure you have made/performed the appropriate migrations. I suggest doing whatever works best for you, but certain
+suggestions should be followed to avoid trouble.
 
-| Version | PHP Version | Laravel Version               | Docs |
+| Version | PHP Version | Laravel/Lumen Version         | Docs |
 | ------- | ----------- | ----------------------------- | ---- |
 | 1.x     | 7.0+        | 5.5+                          | [Docs](https://github.com/kanalumaddela/laravel-steam-login/wiki/1.x) |
 | 2.x     | 7.1+        | 5.6+                          | [Docs](https://github.com/kanalumaddela/laravel-steam-login/wiki/2.x) |
@@ -25,25 +25,27 @@ examples. I suggest doing whatever works best for you, but certain suggestions s
 - Included abstract controller and routes for easy setup
 - `SteamUser`class to easily retrieve a player's data
 
+## [3.x / 2.x] Quick Setup
+
 1. Install library
 
 ```
 composer require kanalumaddela/laravel-steam-login
+```
 
+2. Publish files
+
+```
 php artisan vendor:publish --force --provider kanalumaddela\LaravelSteamLogin\SteamLoginServiceProvider
 ```
 
-## [3.x / 2.x] Quick Setup
-
-2. Create Controller
+3. Create Controller
 
 ```
 php artisan make:controller Auth\SteamLoginController
 ```
 
-3. Add routes
-
-`routes/web.php`
+4. Add routes `routes/web.php`
 
 ```php
 use App\Http\Controllers\Auth\SteamLoginController;
@@ -51,24 +53,21 @@ use kanalumaddela\LaravelSteamLogin\Facades\SteamLogin;
 
 //...
 
-// if using steam login only, add ['include_login_route' => true] to also add a /login route,
+// If using steam login only, add ['include_login_route' => true]
+// to also add a /login route,
 
 SteamLogin::routes([
     'controller' => SteamLoginController::class,
 ]);
 ```
 
-4. Edit Controller
-   `App\Http\Controllers\Auth\SteamLoginController.php`
-
+4. Edit Controller `App\Http\Controllers\Auth\SteamLoginController.php`
 ```php
 <?php
 
 namespace App\Http\Controllers\Auth;
 
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\Hash;
 use kanalumaddela\LaravelSteamLogin\Http\Controllers\AbstractSteamLoginController;
 use kanalumaddela\LaravelSteamLogin\SteamUser;
 
@@ -79,8 +78,9 @@ class SteamLoginController extends AbstractSteamLoginController
      */
     public function authenticated(Request $request, SteamUser $steamUser)
     {
-        // auth logic goes here
-        // e.g. $user = User::where('steam_account_id', $steamUser->accountId)->first();
+        // auth logic goes here, below assumes User model with `steam_account_id` attribute 
+        // $user = User::where('steam_account_id', $steamUser->accountId)->first();
+        // \Illuminate\Support\Facades\Auth::login($user);
     }
 }
 ```
