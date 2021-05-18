@@ -15,11 +15,10 @@ namespace kanalumaddela\LaravelSteamLogin\Http\Controllers;
 use Exception;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
-use Illuminate\Routing\Controller;
 use kanalumaddela\LaravelSteamLogin\Contracts\SteamLoginControllerInterface;
 use kanalumaddela\LaravelSteamLogin\SteamLogin;
 
-abstract class AbstractSteamLoginController extends Controller implements SteamLoginControllerInterface
+abstract class AbstractSteamLoginController implements SteamLoginControllerInterface
 {
     /**
      * SteamLogin instance.
