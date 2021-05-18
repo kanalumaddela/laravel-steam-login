@@ -12,7 +12,7 @@
 
 return [
     /**
-     * Steam API key used for pulling player's profile data
+     * Steam API key used for pulling player's profile data.
      *
      * @link https://steamcommunity.com/dev/apikey
      *
@@ -22,21 +22,21 @@ return [
 
     /**
      * Method of retrieving player's profile data.
-     * Valid options: [xml, api]
+     * Valid options: [xml, api].
      *
      * @var string
      */
     'method'  => env('STEAM_LOGIN_PROFILE_DATA_METHOD', env('STEAM_LOGIN_PROFILE_METHOD', 'xml')),
 
     /**
-     * Timeout (seconds) for any requests performed
+     * Timeout (seconds) for any requests performed.
      *
      * @var int
      */
     'timeout' => env('STEAM_LOGIN_TIMEOUT', 5),
 
     /**
-     * Login/Auth route names/paths
+     * Login/Auth route names/paths.
      *
      * @var array
      */
@@ -46,7 +46,7 @@ return [
     ],
 
     /**
-     * Whether to add ?redirect_to and automatically redirect a user
+     * Whether to add ?redirect_to and automatically redirect a user.
      */
     'redirect_to' => env('STEAM_LOGIN_ENABLE_REDIRECT_TO', true),
 ];

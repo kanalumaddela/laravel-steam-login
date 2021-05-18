@@ -12,19 +12,19 @@
 
 namespace kanalumaddela\LaravelSteamLogin;
 
+use function array_merge;
+use function config;
 use GuzzleHttp\Client as GuzzleClient;
 use GuzzleHttp\Exception\GuzzleException;
 use GuzzleHttp\Psr7\Response;
 use Illuminate\Support\Fluent;
-use SteamID;
-use function array_merge;
-use function config;
 use function json_decode;
+use const JSON_ERROR_NONE;
 use function json_last_error;
 use function simplexml_load_string;
 use function sprintf;
+use SteamID;
 use function ucfirst;
-use const JSON_ERROR_NONE;
 
 /**
  * @property string steamId
@@ -150,7 +150,7 @@ class SteamUser extends Fluent
     }
 
     /**
-     * Get xpaw SteamID instance
+     * Get xpaw SteamID instance.
      *
      * @return \SteamID
      */
@@ -195,7 +195,6 @@ class SteamUser extends Fluent
             $this->attributes = array_merge($this->attributes, $data);
         } catch (GuzzleException $e) {
         }
-
     }
 
     protected static function parseApiProfileData($body): array
