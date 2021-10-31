@@ -57,23 +57,9 @@ abstract class AbstractSteamLoginController implements SteamLoginControllerInter
     }
 
     /**
-     * Keep for deprecation purposes.
-     *
-     * @deprecated
-     *
-     * @throws \Exception
-     *
-     * @return \Illuminate\Http\RedirectResponse|mixed
-     */
-    public function auth()
-    {
-        return $this->authenticate();
-    }
-
-    /**
      * {@inheritdoc}
      *
-     * @throws \Exception
+     * @throws \Exception|\GuzzleHttp\Exception\GuzzleException
      *
      * @return mixed
      */
@@ -89,7 +75,7 @@ abstract class AbstractSteamLoginController implements SteamLoginControllerInter
             return $this->authenticationFailed($this->request);
         }
 
-        if (!$this->steam->isLaravel() || $this->steam->isLaravel() && url()->previous() === route(config('steam-login.routes.auth'))) {
+        if (!$this->steam->isLaravel() || ($this->steam->isLaravel() && url()->previous() === route(config('steam-login.routes.auth')))) {
             return $this->login();
         }
 

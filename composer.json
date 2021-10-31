@@ -28,6 +28,9 @@
         "guzzlehttp/guzzle": "^6.3|^7.0",
         "xpaw/steamid": "^2.0"
     },
+    "suggest": {
+        "kanalumaddela/laravel-steam-socialite": "Driver for Laravel Socialite (community)"
+    },
     "autoload": {
         "psr-4": {
             "kanalumaddela\\LaravelSteamLogin\\": "src/"

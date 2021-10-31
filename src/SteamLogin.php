@@ -12,29 +12,29 @@
 
 namespace kanalumaddela\LaravelSteamLogin;
 
-use function config;
 use Exception;
-use function explode;
-use const FILTER_VALIDATE_URL;
-use function filter_var;
-use function get_class;
 use GuzzleHttp\Client as GuzzleClient;
 use GuzzleHttp\Psr7\Response;
-use function http_build_query;
+use Illuminate\Contracts\Foundation\Application;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
-use Illuminate\Routing\UrlGenerator;
 use InvalidArgumentException;
-use function is_numeric;
 use kanalumaddela\LaravelSteamLogin\Contracts\SteamLoginInterface;
+use Symfony\Component\Routing\Exception\RouteNotFoundException;
+use function config;
+use function explode;
+use function filter_var;
+use function get_class;
+use function http_build_query;
+use function is_numeric;
 use function parse_url;
-use const PHP_URL_HOST;
 use function preg_match;
 use function redirect;
 use function sprintf;
 use function strpos;
-use Symfony\Component\Routing\Exception\RouteNotFoundException;
 use function trigger_error;
+use const FILTER_VALIDATE_URL;
+use const PHP_URL_HOST;
 
 class SteamLogin implements SteamLoginInterface
 {
@@ -170,18 +170,22 @@ class SteamLogin implements SteamLoginInterface
     /**
      * SteamLogin constructor.
      *
-     * @param \Illuminate\Http\Request              $request
-     * @param \Illuminate\Routing\UrlGenerator|null $urlGenerator
-     * @param null                                  $app
+     * @param \Illuminate\Http\Request                          $request
+     * @param \Illuminate\Contracts\Foundation\Application|null $app
      */
-    public function __construct(Request $request, UrlGenerator $urlGenerator = null, $app = null)
+    public function __construct(Request $request, ?Application $app)
     {
         if (PHP_INT_SIZE !== 8) {
             trigger_error('64-bit PHP is required to convert steamids', E_USER_WARNING);
         }
 
         $this->request = $request;
-        $this->urlGenerator = $urlGenerator;
+
+        $app = empty($app) && function_exists('app') ? app() : $app;
+
+        if (!is_null($app)) {
+            $this->urlGenerator = $app->get('url');
+        }
 
         static::$isLaravel = !empty($app) && strpos(get_class($app), 'Lumen') === false;
         static::$isHttps = $this->isHttps();
@@ -234,107 +238,9 @@ class SteamLogin implements SteamLoginInterface
         return $route;
     }
 
-    public function setAuthRoute(string $route): self
+    public function setAuthRoute(string $route): SteamLogin
     {
         $this->authRoute = $this->getRoute($route);
-
-        return $this;
-    }
-
-    /**
-     * @deprecated
-     *
-     * @param string|null $return
-     *
-     * @return string
-     */
-    public function createLoginUrl(?string $return = null): string
-    {
-        return $this->buildLoginUrl($return);
-    }
-
-    /**
-     * Build the login url with optional openid.return_to and ?redirect.
-     *
-     * @param string|null $return
-     * @param string|null $redirectTo
-     *
-     * @throws \InvalidArgumentException
-     *
-     * @return string
-     */
-    public function buildLoginUrl(?string $return = null, ?string $redirectTo = null): string
-    {
-        $this->clearRouteChecks()
-            ->prepRoutes();
-
-        if (empty($return)) {
-            $return = $this->authRoute;
-        }
-
-        $this->setRedirectTo($redirectTo);
-
-        $params = static::$openIdParams;
-        $this->realm = $this->getRealm();
-
-        if (parse_url($this->realm, PHP_URL_HOST) !== parse_url($return, PHP_URL_HOST)) {
-            throw new InvalidArgumentException(sprintf('realm: `%s` and return_to: `%s` do not have matching hosts', $this->realm, $return));
-        }
-
-        $params['openid.realm'] = $this->realm;
-        $params['openid.return_to'] = $return.(static::$isLaravel && !empty($this->redirectTo) && config('steam-login.redirect_to') ? '?'.http_build_query(['redirect_to' => $this->redirectTo]) : '');
-
-        return static::OPENID_STEAM.'?'.http_build_query($params);
-    }
-
-    protected function prepRoutes()
-    {
-        $this->loginRoute = $this->getRoute(config('steam-login.routes.login', 'login.steam'));
-        $this->authRoute = $this->getRoute(config('steam-login.routes.auth', 'auth.steam'));
-
-        $this->routeChecks[$this->loginRoute] = true;
-        $this->routeChecks[$this->authRoute] = true;
-
-        return $this;
-    }
-
-    protected function clearRouteChecks()
-    {
-        $this->routeChecks = [];
-
-        return $this;
-    }
-
-    /**
-     * @return string
-     */
-    public function getRealm(): string
-    {
-        if (empty($this->realm)) {
-            $this->setRealm();
-        }
-
-        return $this->realm;
-    }
-
-    /**
-     * Set the openid.realm either by passing the URL or the domain only.
-     *
-     * @param string $realm
-     *
-     * @return \kanalumaddela\LaravelSteamLogin\SteamLogin
-     */
-    public function setRealm(?string $realm = null): self
-    {
-        if (empty($realm)) {
-            $host = $this->request->getHttpHost();
-
-            $realm = (static::$isHttps ? 'https' : 'http').'://'.$host;
-        } elseif (!filter_var($realm, FILTER_VALIDATE_URL)) {
-            throw new InvalidArgumentException('$realm: `'.$realm.'` is not a valid URL.');
-        }
-
-        $this->realm = $realm;
 
         return $this;
     }
@@ -413,11 +319,11 @@ class SteamLogin implements SteamLoginInterface
         }
 
         if (empty($this->guzzle)) {
-            $this->setGuzzle(new GuzzleClient())->setRealm();
+            $this->setGuzzle(new GuzzleClient());
         }
 
         $this->response = $this->guzzle->post($this->request->query('openid_op_endpoint'), [
-            'timeout'     => config('steam-login.timeout'),
+            'timeout'     => config('steam-login.timeout', 5),
             'form_params' => $params,
         ]);
 
@@ -467,6 +373,90 @@ class SteamLogin implements SteamLoginInterface
     }
 
     /**
+     * Build the login url with optional openid.return_to and ?redirect.
+     *
+     * @param string|null $return
+     * @param string|null $redirectTo
+     *
+     * @throws \InvalidArgumentException
+     *
+     * @return string
+     */
+    public function buildLoginUrl(?string $return = null, ?string $redirectTo = null, bool $checkRoutes = true, bool $includeRedirectTo = true): string
+    {
+        if ($checkRoutes) {
+            $this->prepRoutes();
+        }
+
+        if (empty($return)) {
+            $return = $this->authRoute;
+        }
+
+        if ($includeRedirectTo) {
+            $this->setRedirectTo($redirectTo);
+        }
+
+        $params = static::$openIdParams;
+        $this->realm = $this->getRealm();
+
+        if (parse_url($this->realm, PHP_URL_HOST) !== parse_url($return, PHP_URL_HOST)) {
+            throw new InvalidArgumentException(sprintf('realm: `%s` and return_to: `%s` do not have matching hosts', $this->realm, $return));
+        }
+
+        $params['openid.realm'] = $this->realm;
+        $params['openid.return_to'] = $return.(static::$isLaravel && !empty($this->redirectTo) && config('steam-login.enable_redirect_to', true) && $includeRedirectTo ? '?'.http_build_query(['redirect_to' => $this->redirectTo]) : '');
+
+        return static::OPENID_STEAM.'?'.http_build_query($params);
+    }
+
+    protected function prepRoutes(): SteamLogin
+    {
+        $this->routeChecks = [];
+
+        $this->loginRoute = $this->getRoute(config('steam-login.routes.login', 'login.steam'));
+        $this->authRoute = $this->getRoute(config('steam-login.routes.auth', 'auth.steam'));
+
+        $this->routeChecks[$this->loginRoute] = true;
+        $this->routeChecks[$this->authRoute] = true;
+
+        return $this;
+    }
+
+    /**
+     * @return string
+     */
+    public function getRealm(): string
+    {
+        if (empty($this->realm)) {
+            $this->setRealm();
+        }
+
+        return $this->realm;
+    }
+
+    /**
+     * Set the openid.realm either by passing the URL or the domain only.
+     *
+     * @param string|null $realm
+     *
+     * @return \kanalumaddela\LaravelSteamLogin\SteamLogin
+     */
+    public function setRealm(?string $realm = null): self
+    {
+        if (empty($realm)) {
+            $host = $this->request->getHttpHost();
+
+            $realm = (static::$isHttps ? 'https' : 'http').'://'.$host;
+        } elseif (!filter_var($realm, FILTER_VALIDATE_URL)) {
+            throw new InvalidArgumentException('$realm: `'.$realm.'` is not a valid URL.');
+        }
+
+        $this->realm = $realm;
+
+        return $this;
+    }
+
+    /**
      * Return the user to the page they were on before logging in
      * or home if no valid ?redirect given.
      *
@@ -495,24 +485,28 @@ class SteamLogin implements SteamLoginInterface
 
     /**
      * @param string|null $redirectTo
+     * @param bool        $checkRoutes
      *
      * @return \kanalumaddela\LaravelSteamLogin\SteamLogin
      */
-    public function setRedirectTo(string $redirectTo = null): self
+    public function setRedirectTo(string $redirectTo = null, bool $checkRoutes = true): self
     {
         if (empty($redirectTo)) {
             $redirectTo = $this->isLaravel() ? $this->urlGenerator->previous('/') : $this->urlGenerator->to('/');
         }
 
-        if (empty($this->routeChecks)) {
-            $this->prepRoutes();
+        if ($checkRoutes) {
+            if (empty($this->routeChecks)) {
+                $this->prepRoutes();
+            }
+
+            if (isset($this->routeChecks[$redirectTo])) {
+                $redirectTo = $this->urlGenerator->to('/');
+            } elseif (!filter_var($redirectTo, FILTER_VALIDATE_URL)) {
+                throw new InvalidArgumentException('$redirectTo: `'.$redirectTo.'` is not a valid URL');
+            }
         }
 
-        if (isset($this->routeChecks[$redirectTo])) {
-            $redirectTo = $this->urlGenerator->to('/');
-        } elseif (!filter_var($redirectTo, FILTER_VALIDATE_URL)) {
-            throw new InvalidArgumentException('$redirectTo: `'.$redirectTo.'` is not a valid URL');
-        }
 
         $this->redirectTo = $redirectTo;
 

@@ -48,5 +48,5 @@ return [
     /**
      * Whether to add ?redirect_to and automatically redirect a user.
      */
-    'redirect_to' => env('STEAM_LOGIN_ENABLE_REDIRECT_TO', true),
+    'enable_redirect_to' => env('STEAM_LOGIN_ENABLE_REDIRECT_TO', true),
 ];
