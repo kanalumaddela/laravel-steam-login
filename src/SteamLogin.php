@@ -12,29 +12,31 @@
 
 namespace kanalumaddela\LaravelSteamLogin;
 
-use function config;
 use Exception;
-use function explode;
-use const FILTER_VALIDATE_URL;
-use function filter_var;
-use function get_class;
 use GuzzleHttp\Client as GuzzleClient;
 use GuzzleHttp\Psr7\Response;
-use function http_build_query;
 use Illuminate\Contracts\Foundation\Application;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use InvalidArgumentException;
-use function is_numeric;
 use kanalumaddela\LaravelSteamLogin\Contracts\SteamLoginInterface;
+use Symfony\Component\Routing\Exception\RouteNotFoundException;
+
+use function config;
+use function explode;
+use function filter_var;
+use function get_class;
+use function http_build_query;
+use function is_numeric;
 use function parse_url;
-use const PHP_URL_HOST;
 use function preg_match;
 use function redirect;
 use function sprintf;
 use function strpos;
-use Symfony\Component\Routing\Exception\RouteNotFoundException;
 use function trigger_error;
+
+use const FILTER_VALIDATE_URL;
+use const PHP_URL_HOST;
 
 class SteamLogin implements SteamLoginInterface
 {
