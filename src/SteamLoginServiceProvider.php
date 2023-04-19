@@ -12,11 +12,12 @@
 
 namespace kanalumaddela\LaravelSteamLogin;
 
+use Illuminate\Support\ServiceProvider;
+
 use function config_path;
 use function copy;
 use function file_exists;
 use function get_class;
-use Illuminate\Support\ServiceProvider;
 use function mkdir;
 use function strpos;
 

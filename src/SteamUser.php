@@ -12,19 +12,21 @@
 
 namespace kanalumaddela\LaravelSteamLogin;
 
-use function array_merge;
-use function config;
 use GuzzleHttp\Client as GuzzleClient;
 use GuzzleHttp\Exception\GuzzleException;
 use GuzzleHttp\Psr7\Response;
 use Illuminate\Support\Fluent;
+use SteamID;
+
+use function array_merge;
+use function config;
 use function json_decode;
-use const JSON_ERROR_NONE;
 use function json_last_error;
 use function simplexml_load_string;
 use function sprintf;
-use SteamID;
 use function ucfirst;
+
+use const JSON_ERROR_NONE;
 
 /**
  * @property string steamId
@@ -241,7 +243,7 @@ class SteamUser extends Fluent
         return [
             'name'            => (string) $xml->steamID,
             'realName'        => isset($xml->realName) ? (string) $xml->realName : null,
-            'profileUrl'      => sprintf((isset($xml->customURL) ? static::STEAM_PROFILE : static::STEAM_PROFILE_ID), $xml->customURL ?? $xml->steamID64),
+            'profileUrl'      => sprintf(isset($xml->customURL) ? static::STEAM_PROFILE : static::STEAM_PROFILE_ID, $xml->customURL ?? $xml->steamID64),
             'isPublic'        => $xml->privacyState === 'public',
             'privacyState'    => $xml->privacyState === 'public' ? 'Public' : 'Private',
             'visibilityState' => (int) $xml->visibilityState,
